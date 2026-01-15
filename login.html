@@ -700,29 +700,20 @@
                 if(!carousel || cards.length === 0) return;
 
                 let scrollInterval;
-                let isPaused = false;
                 const intervalTime = 3000; 
 
-                // Function to move to next slide
                 function scrollNext() {
-                    if (isPaused) return;
-
                     const cardWidth = carousel.offsetWidth;
-                    const currentScroll = carousel.scrollLeft;
-                    const maxScroll = carousel.scrollWidth - cardWidth;
-                    
-                    // Determine current index based on scroll position
-                    let currentIndex = Math.round(currentScroll / cardWidth);
-                    
-                    // Calculate next index
+                    const scrollLeft = carousel.scrollLeft;
+                    // Use rounding to find current index
+                    let currentIndex = Math.round(scrollLeft / cardWidth);
                     let nextIndex = currentIndex + 1;
                     
-                    // Loop back if at the end
+                    // Loop back to start
                     if (nextIndex >= cards.length) {
                         nextIndex = 0;
                     }
 
-                    // Scroll to exact position
                     carousel.scrollTo({
                         left: nextIndex * cardWidth,
                         behavior: 'smooth'
@@ -739,32 +730,31 @@
                 }
 
                 function startAutoScroll() {
-                    clearInterval(scrollInterval);
+                    stopAutoScroll();
                     scrollInterval = setInterval(scrollNext, intervalTime);
                 }
 
-                // Listen for manual scroll to update dots
+                function stopAutoScroll() {
+                    if(scrollInterval) clearInterval(scrollInterval);
+                }
+
+                // Update dots on manual scroll
                 carousel.addEventListener('scroll', () => {
-                    if (!isPaused) { 
-                        // Only update dots on scroll if not currently animating via JS, 
-                        // actually, strictly updating on scroll is safer for manual swipes
-                        const cardWidth = carousel.offsetWidth;
-                        const index = Math.round(carousel.scrollLeft / cardWidth);
-                        updateDots(index);
-                    }
+                    const cardWidth = carousel.offsetWidth;
+                    const index = Math.round(carousel.scrollLeft / cardWidth);
+                    updateDots(index);
                 });
 
-                // Pause interactions
-                carousel.addEventListener('touchstart', () => { isPaused = true; clearInterval(scrollInterval); });
-                carousel.addEventListener('touchend', () => { isPaused = false; startAutoScroll(); });
-                carousel.addEventListener('mouseenter', () => { isPaused = true; clearInterval(scrollInterval); });
-                carousel.addEventListener('mouseleave', () => { isPaused = false; startAutoScroll(); });
+                // User Interaction
+                carousel.addEventListener('touchstart', stopAutoScroll);
+                carousel.addEventListener('touchend', startAutoScroll);
+                carousel.addEventListener('mousedown', stopAutoScroll);
+                carousel.addEventListener('mouseup', startAutoScroll);
 
                 startAutoScroll();
             }
 
-            // Init with slight delay to ensure layout is settled
-            setTimeout(initSlider, 100); 
+            setTimeout(initSlider, 500); 
         })();
 
     </script>
