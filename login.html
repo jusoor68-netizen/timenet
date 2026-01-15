@@ -3,20 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TIMENET - بوابة الدخول الذكية</title>
+    <title>TIMENET - البوابة الكونية</title>
     
     <!-- مكتبة التشفير -->
     <script src="md5.js"></script>
 
     <style>
         :root {
-            --brand-primary: #ff0080;
-            --brand-secondary: #7928ca;
-            --bg-main: #0c0c0e;
-            --card-glass: rgba(255, 255, 255, 0.05);
-            --card-border: rgba(255, 255, 255, 0.1);
-            --text-main: #ffffff;
-            --text-muted: #a1a1aa;
+            --primary: #00f260;
+            --secondary: #0575e6;
+            --accent: #f80759;
+            --bg-deep: #050505;
+            /* لون زجاجي أقوى ليظهر بوضوح */
+            --glass-bg: rgba(255, 255, 255, 0.12);
+            --glass-border: rgba(255, 255, 255, 0.3);
+            --text: #ffffff;
+            --text-dim: #cccccc;
         }
 
         @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap');
@@ -30,64 +32,102 @@
         }
 
         body {
-            background-color: var(--bg-main);
-            color: var(--text-main);
+            background-color: var(--bg-deep);
+            color: var(--text);
             min-height: 100vh;
             display: flex;
             flex-direction: column;
-            overflow-x: hidden;
-            background-image: 
-                radial-gradient(at 0% 0%, rgba(255, 0, 128, 0.15) 0px, transparent 50%),
-                radial-gradient(at 100% 100%, rgba(121, 40, 202, 0.15) 0px, transparent 50%);
+            overflow: hidden; /* لمنع ظهور أشرطة التمرير مع الكانفاس */
+            position: relative;
+        }
+
+        /* خلفية الكانفاس المتحركة */
+        #cosmic-canvas {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            z-index: 0; /* في الخلفية تماماً */
+            background: linear-gradient(to bottom, #0f0c29, #302b63, #24243e);
         }
 
         .container {
+            position: relative;
+            z-index: 10; /* فوق الخلفية */
             width: 100%;
-            max-width: 440px;
+            max-width: 450px;
             margin: 0 auto;
             padding: 20px;
-            flex: 1;
             display: flex;
             flex-direction: column;
+            height: 100vh;
+            overflow-y: auto; /* السماح بالتمرير للمحتوى */
         }
 
         header {
             text-align: center;
-            padding: 30px 0;
+            padding: 20px 0;
+            animation: floatLogo 6s ease-in-out infinite;
+        }
+
+        @keyframes floatLogo {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
         }
 
         .logo {
-            font-size: 2.2rem;
+            font-size: 2.5rem;
             font-weight: 900;
-            background: linear-gradient(to right, var(--brand-primary), var(--brand-secondary));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            letter-spacing: -1px;
+            color: #fff;
+            text-shadow: 0 0 15px rgba(5, 117, 230, 0.8);
+            letter-spacing: 2px;
         }
 
-        /* البطاقة الرئيسية */
-        .main-card {
-            background: var(--card-glass);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border: 1px solid var(--card-border);
-            border-radius: 32px;
+        .logo span { color: var(--primary); }
+
+        /* البطاقة الزجاجية العائمة */
+        .glass-card {
+            background: var(--glass-bg);
+            /* استخدام فلتر الضبابية مع دعم للمتصفحات القديمة */
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            border: 1px solid var(--glass-border);
+            border-top: 2px solid rgba(255,255,255,0.4);
+            border-radius: 30px;
             padding: 30px 20px;
             margin-bottom: 25px;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.5);
+            position: relative;
+        }
+
+        /* لمعان متحرك على البطاقة */
+        .glass-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: -100%;
+            width: 50%; height: 100%;
+            background: linear-gradient(to right, transparent, rgba(255,255,255,0.1), transparent);
+            transform: skewX(-25deg);
+            animation: shine 6s infinite;
+        }
+
+        @keyframes shine {
+            0% { left: -100%; }
+            20% { left: 200%; }
+            100% { left: 200%; }
         }
 
         /* حقول الإدخال */
-        .input-wrapper {
+        .input-area {
+            position: relative;
             margin-bottom: 20px;
         }
 
-        .custom-input {
+        .neon-input {
             width: 100%;
             padding: 18px;
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid var(--card-border);
-            border-radius: 18px;
+            background: rgba(0,0,0,0.4);
+            border: 2px solid rgba(255,255,255,0.1);
+            border-radius: 15px;
             color: #fff;
             font-size: 1.2rem;
             text-align: center;
@@ -95,248 +135,212 @@
             transition: 0.3s;
         }
 
-        .custom-input:focus {
+        .neon-input:focus {
             outline: none;
-            border-color: var(--brand-primary);
-            background: rgba(255, 255, 255, 0.06);
+            border-color: var(--primary);
+            box-shadow: 0 0 15px rgba(0, 242, 96, 0.3);
+            background: rgba(0,0,0,0.6);
         }
 
-        .btn-vivid {
+        .btn-action {
             width: 100%;
             padding: 18px;
-            border-radius: 18px;
+            border-radius: 50px;
             border: none;
-            background: linear-gradient(to right, var(--brand-primary), var(--brand-secondary));
+            background: linear-gradient(90deg, var(--secondary), #00c6ff);
             color: #fff;
-            font-weight: 900;
             font-size: 1.1rem;
+            font-weight: 800;
             cursor: pointer;
-            box-shadow: 0 10px 20px rgba(255, 0, 128, 0.2);
+            box-shadow: 0 5px 20px rgba(5, 117, 230, 0.4);
             transition: 0.3s;
         }
 
-        .btn-vivid:active {
-            transform: scale(0.97);
+        .btn-action:hover {
+            transform: scale(1.02);
+            box-shadow: 0 8px 25px rgba(5, 117, 230, 0.6);
         }
 
-        /* السلايدر تحت زر الدخول */
-        .auto-slider {
-            margin-top: 25px;
-            height: 50px;
-            position: relative;
+        /* السلايدر المدمج */
+        .msg-slider {
+            margin-top: 15px;
+            height: 30px;
             overflow: hidden;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            position: relative;
         }
 
-        .slide {
+        .msg-item {
             position: absolute;
             width: 100%;
-            opacity: 0;
-            transform: translateY(10px);
-            transition: 0.5s ease-in-out;
             text-align: center;
-        }
-
-        .slide.active {
-            opacity: 1;
-            transform: translateY(0);
-        }
-
-        .slide p {
+            top: 100%;
+            opacity: 0;
+            transition: 0.5s;
             font-size: 0.85rem;
-            color: var(--text-muted);
+            color: var(--text-dim);
+        }
+
+        .msg-item.active { top: 0; opacity: 1; }
+
+        /* شريط الباقات (Horizontal Scroll) */
+        .plans-title {
+            font-size: 0.9rem;
+            margin-bottom: 10px;
+            padding-right: 10px;
+            color: var(--primary);
             font-weight: bold;
         }
 
-        /* الباقات (Small Pills) لتقليل الحيز */
-        .plans-label {
-            font-size: 0.8rem;
-            font-weight: 900;
-            color: var(--text-muted);
-            margin-bottom: 12px;
-            padding: 0 10px;
+        .plans-wrapper {
             display: flex;
-            align-items: center;
-            gap: 8px;
+            overflow-x: auto;
+            gap: 12px;
+            padding-bottom: 15px;
+            scrollbar-width: none;
+            margin-bottom: 10px;
         }
+        .plans-wrapper::-webkit-scrollbar { display: none; }
 
-        .pills-grid {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            margin-bottom: 25px;
-            padding: 0 5px;
-        }
-
-        .pill-item {
-            flex: 1;
-            min-width: calc(50% - 5px);
-            background: var(--card-glass);
-            border: 1px solid var(--card-border);
-            padding: 12px;
-            border-radius: 20px;
+        .plan-box {
+            min-width: 100px;
+            background: rgba(255,255,255,0.08);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 18px;
+            padding: 15px 10px;
             text-align: center;
             cursor: pointer;
-            transition: 0.2s;
+            transition: 0.3s;
+            flex-shrink: 0;
         }
 
-        .pill-item:active {
-            border-color: var(--brand-primary);
-            background: rgba(255, 0, 128, 0.1);
+        .plan-box:active {
+            background: var(--primary);
+            border-color: var(--primary);
+            transform: scale(0.95);
         }
 
-        .pill-item b { font-size: 1.1rem; color: #fff; display: block; }
-        .pill-item span { font-size: 0.7rem; color: var(--text-muted); }
+        .plan-box:active * { color: #000; }
 
-        /* بانر مركز الترفيه (إعلان فقط) */
-        .promo-banner {
-            background: linear-gradient(to right, rgba(121, 40, 202, 0.1), rgba(255, 0, 128, 0.1));
-            border: 1px solid var(--card-border);
-            border-radius: 24px;
+        .p-price { font-size: 1.3rem; font-weight: 900; margin-bottom: 5px; }
+        .p-hours { font-size: 0.8rem; color: var(--text-dim); }
+
+        /* بانر الترفيه */
+        .ent-banner {
+            margin-top: auto;
+            background: rgba(0,0,0,0.5);
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 20px;
             padding: 15px;
             display: flex;
             align-items: center;
             gap: 15px;
             text-decoration: none;
-            margin-top: auto;
+            margin-bottom: 20px;
+            transition: 0.3s;
         }
 
-        .promo-icon {
-            width: 50px;
-            height: 50px;
-            background: var(--card-glass);
-            border-radius: 16px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.5rem;
+        .ent-banner:active {
+            background: rgba(255, 255, 255, 0.1);
+            transform: scale(0.98);
         }
 
-        .promo-text h4 { font-size: 0.9rem; color: #fff; margin-bottom: 2px; }
-        .promo-text p { font-size: 0.75rem; color: var(--text-muted); }
+        .ent-icon { font-size: 1.8rem; }
+        .ent-txt h4 { font-size: 0.95rem; color: #fff; margin-bottom: 2px; }
+        .ent-txt p { font-size: 0.75rem; color: var(--text-dim); }
 
         /* حالة الاتصال */
-        .status-box {
-            display: flex;
-            justify-content: space-between;
-            padding: 12px 0;
-            border-bottom: 1px solid var(--card-border);
+        .status-line {
+            display: flex; justify-content: space-between;
+            padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.1);
         }
+        .status-line span:last-child { color: var(--primary); font-weight: bold; }
 
-        .status-box span:first-child { color: var(--text-muted); font-size: 0.9rem; }
-        .status-box span:last-child { font-weight: bold; color: var(--brand-primary); }
-
-        /* الإشعارات */
+        /* التوست */
         #toast {
-            position: fixed;
-            top: 25px;
-            left: 50%;
-            transform: translateX(-50%) translateY(-100px);
-            background: #1a1a1a;
-            color: #fff;
-            padding: 12px 30px;
-            border-radius: 50px;
-            font-size: 0.85rem;
-            z-index: 1000;
-            transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            border: 1px solid var(--brand-primary);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            position: fixed; top: 20px; left: 50%; transform: translateX(-50%) translateY(-100px);
+            background: var(--accent); color: white; padding: 10px 25px; border-radius: 50px;
+            z-index: 100; transition: 0.4s; font-weight: bold;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.4);
         }
         #toast.show { transform: translateX(-50%) translateY(0); }
 
-        footer {
-            text-align: center;
-            padding: 25px 0;
-            font-size: 0.75rem;
-            color: var(--text-muted);
-            font-weight: bold;
-        }
+        footer { text-align: center; font-size: 0.7rem; color: rgba(255,255,255,0.3); padding-bottom: 10px; }
 
     </style>
 </head>
 <body>
 
-    <div id="toast">🚀 <span id="toast-msg"></span></div>
+    <!-- خلفية النجوم المتحركة -->
+    <canvas id="cosmic-canvas"></canvas>
+
+    <div id="toast">⚠️ <span id="toast-msg"></span></div>
 
     <div class="container">
         <header>
-            <div class="logo">TIMENET</div>
+            <div class="logo">TIME<span>NET</span></div>
         </header>
 
-        <main class="main-card">
+        <div class="glass-card">
             $(if username)
-            <!-- واجهة الحالة بعد تسجيل الدخول -->
-            <div class="status-view">
-                <div style="text-align: center; margin-bottom: 25px;">
-                    <p style="font-size: 0.8rem; color: var(--text-muted);" data-i18n="hi">أهلاً بك في شبكتك</p>
-                    <h2 style="background: linear-gradient(to right, #fff, var(--brand-primary)); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">$(username)</h2>
+            <!-- حالة المستخدم -->
+            <div class="user-status">
+                <div style="text-align: center; margin-bottom: 20px;">
+                    <p style="font-size: 0.8rem; color: var(--text-dim);" data-i18n="hi">أهلاً بك</p>
+                    <h2 style="font-size: 1.6rem;">$(username)</h2>
                 </div>
+                
+                <div class="status-line"><span data-i18n="uptime">الوقت</span><span>$(uptime)</span></div>
+                <div class="status-line"><span data-i18n="usage">التحميل</span><span>$(bytes-out-nice)</span></div>
+                <div class="status-line"><span>IP</span><span>$(ip)</span></div>
 
-                <div class="status-box"><span data-i18n="uptime">وقت الاتصال</span><span>$(uptime)</span></div>
-                <div class="status-box"><span data-i18n="usage">بيانات الجلسة</span><span>$(bytes-out-nice)</span></div>
-                <div class="status-box"><span>IP Address</span><span>$(ip)</span></div>
-
-                <form action="$(link-logout)" name="logout" style="margin-top: 30px;">
+                <form action="$(link-logout)" name="logout" style="margin-top: 25px;">
                     <input type="hidden" name="erase-cookie" value="on">
-                    <button type="submit" class="btn-vivid" style="background: var(--danger);" data-i18n="logout">قطع الاتصال</button>
+                    <button type="submit" class="btn-action" style="background: linear-gradient(90deg, #ff416c, #ff4b2b);" data-i18n="logout">خروج</button>
                 </form>
             </div>
             $(else)
-            <!-- واجهة الدخول -->
-            <div class="login-view">
-                <form name="login" action="$(link-login-only)" method="post" onsubmit="return performAuth()">
+            <!-- تسجيل الدخول -->
+            <div class="login-form">
+                <form name="login" action="$(link-login-only)" method="post" onsubmit="return tryLogin()">
                     <input type="hidden" name="dst" value="$(link-orig)">
                     <input type="hidden" name="popup" value="true">
                     <input type="hidden" name="password">
 
-                    <div class="input-wrapper">
-                        <input type="text" name="username" id="u_field" class="custom-input" placeholder="أدخل كود الكرت" autocomplete="off" required>
+                    <div class="input-area">
+                        <input type="text" name="username" id="code-input" class="neon-input" placeholder="أدخل كود الكرت" autocomplete="off" required>
                     </div>
 
-                    <button type="submit" class="btn-vivid" id="auth_btn" data-i18n="connect">تسجيل الدخول</button>
+                    <button type="submit" class="btn-action" id="login-btn" data-i18n="connect">اتصال</button>
                 </form>
 
-                <!-- السلايدر تحت زر الدخول -->
-                <div class="auto-slider">
-                    <div class="slide active">
-                        <p data-i18n="s1">سرعات فائقة تلبي احتياجاتك ⚡</p>
-                    </div>
-                    <div class="slide">
-                        <p data-i18n="s2">باقات TIMENET.. القيمة الأفضل 💎</p>
-                    </div>
-                    <div class="slide">
-                        <p data-i18n="s3">دعم فني متواصل على مدار الساعة 📞</p>
-                    </div>
+                <div class="msg-slider">
+                    <div class="msg-item active" data-i18n="m1">أسرع شبكة في منطقتك 🚀</div>
+                    <div class="msg-item" data-i18n="m2">باقات اقتصادية تناسب الجميع 💎</div>
+                    <div class="msg-item" data-i18n="m3">للمساعدة اتصل بـ 777019176 📞</div>
                 </div>
             </div>
             $(endif)
-        </main>
-
-        <!-- الباقات المصغرة -->
-        <div class="plans-label">
-            <span>🔖</span> <span data-i18n="plans_title">باقات TIMENET المتوفرة</span>
-        </div>
-        <div class="pills-grid" id="plans_list">
-            <!-- يتم التوليد بواسطة JS -->
         </div>
 
-        <!-- إعلان مركز الترفيه -->
-        <a href="http://10.10.10.10" class="promo-banner">
-            <div class="promo-icon">🎬</div>
-            <div class="promo-text">
-                <h4 data-i18n="ent_h">مركز الترفيه (مجاني داخل الشبكة)</h4>
-                <p data-i18n="ent_p">تصفح أحدث الأفلام والمسلسلات بدون استهلاك رصيدك</p>
+        <div class="plans-title" data-i18n="plans">اختر الباقة المناسبة</div>
+        <div class="plans-wrapper" id="plans-container">
+            <!-- سيتم إضافة الباقات هنا -->
+        </div>
+
+        <a href="http://10.10.10.10" class="ent-banner">
+            <div class="ent-icon">🍿</div>
+            <div class="ent-txt">
+                <h4 data-i18n="ent">مركز الترفيه</h4>
+                <p data-i18n="ent_desc">مجاني بالكامل - أفلام ومباريات</p>
             </div>
         </a>
 
         <footer>
-            <p>&copy; 2026 TIMENET SMART WIFI</p>
+            &copy; 2026 TIMENET SYSTEM
         </footer>
     </div>
 
-    <!-- فورم ميكروتك المخفي -->
+    <!-- ميكروتك -->
     <form name="sendin" action="$(link-login-only)" method="post" style="display:none">
         <input type="hidden" name="username" />
         <input type="hidden" name="password" />
@@ -345,94 +349,138 @@
     </form>
 
     <script>
-        // بيانات الباقات
-        const plans = [
-            { price: "100", time: "3 ساعات" },
-            { price: "200", time: "7 ساعات" },
-            { price: "500", time: "20 ساعة" },
-            { price: "1000", time: "50 ساعة" }
+        // 1. تشغيل خلفية النجوم (CANVAS)
+        const canvas = document.getElementById('cosmic-canvas');
+        const ctx = canvas.getContext('2d');
+        let width, height, stars = [];
+
+        function initCanvas() {
+            width = window.innerWidth;
+            height = window.innerHeight;
+            canvas.width = width;
+            canvas.height = height;
+            stars = [];
+            for(let i=0; i<60; i++) {
+                stars.push({
+                    x: Math.random() * width,
+                    y: Math.random() * height,
+                    size: Math.random() * 2 + 0.5,
+                    speed: Math.random() * 0.5 + 0.2
+                });
+            }
+        }
+
+        function animateCanvas() {
+            ctx.clearRect(0, 0, width, height);
+            // رسم تدرج لوني
+            const gradient = ctx.createLinearGradient(0, 0, 0, height);
+            gradient.addColorStop(0, '#0f0c29');
+            gradient.addColorStop(0.5, '#302b63');
+            gradient.addColorStop(1, '#24243e');
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, width, height);
+
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+            stars.forEach(s => {
+                ctx.beginPath();
+                ctx.arc(s.x, s.y, s.size, 0, Math.PI * 2);
+                ctx.fill();
+                s.y -= s.speed; // تحريك للأعلى
+                if(s.y < 0) s.y = height; // إعادة تدوير
+            });
+            requestAnimationFrame(animateCanvas);
+        }
+
+        window.addEventListener('resize', initCanvas);
+        initCanvas();
+        animateCanvas();
+
+        // 2. الباقات
+        const packages = [
+            { p: "100", t: "3 ساعات" },
+            { p: "200", t: "7 ساعات" },
+            { p: "500", t: "20 ساعة" },
+            { p: "1000", t: "50 ساعة" }
         ];
 
-        // الترجمة
-        const i18n = {
+        const langData = {
             ar: {
-                hi: "أهلاً بك في شبكتك", uptime: "وقت الاتصال", usage: "بيانات الجلسة", logout: "قطع الاتصال",
-                connect: "تسجيل الدخول", s1: "سرعات فائقة تلبي احتياجاتك ⚡", s2: "باقات TIMENET.. القيمة الأفضل 💎",
-                s3: "دعم فني متواصل على مدار الساعة 📞", plans_title: "باقات TIMENET المتوفرة",
-                ent_h: "مركز الترفيه (مجاني داخل الشبكة)", ent_p: "تصفح أحدث الأفلام والمسلسلات بدون استهلاك رصيدك"
+                hi: "أهلاً بك", uptime: "الوقت", usage: "التحميل", logout: "خروج",
+                connect: "اتصال", m1: "أسرع شبكة في منطقتك 🚀", m2: "باقات اقتصادية تناسب الجميع 💎",
+                m3: "للمساعدة اتصل بـ 777019176 📞", plans: "اختر الباقة المناسبة", ent: "مركز الترفيه", ent_desc: "مجاني بالكامل - أفلام ومباريات"
             },
             en: {
-                hi: "Welcome to your network", uptime: "Connection Time", usage: "Session Usage", logout: "Disconnect",
-                connect: "Login Now", s1: "Ultra speeds for your needs ⚡", s2: "TIMENET Plans.. Best Value 💎",
-                s3: "24/7 technical support 📞", plans_title: "Available TIMENET Plans",
-                ent_h: "Entertainment Center (Local Free)", ent_p: "Browse latest movies without using your balance"
+                hi: "Welcome", uptime: "Time", usage: "Data", logout: "Logout",
+                connect: "Connect", m1: "Fastest network in town 🚀", m2: "Best value plans 💎",
+                m3: "Support: 777019176 📞", plans: "Select a Plan", ent: "Entertainment", ent_desc: "Free Movies & Live TV"
             }
         };
+        let currentLang = 'ar';
 
-        let lang = 'ar';
-
-        function renderPlans() {
-            const list = document.getElementById('plans_list');
-            list.innerHTML = plans.map(p => `
-                <div class="pill-item" onclick="quickFill('${p.price}')">
-                    <b>${p.price}</b>
-                    <span>${p.time}</span>
+        function renderPkgs() {
+            const c = document.getElementById('plans-container');
+            c.innerHTML = packages.map(pkg => `
+                <div class="plan-box" onclick="fill('${pkg.p}')">
+                    <div class="p-price">${pkg.p}</div>
+                    <div class="p-hours">${pkg.t}</div>
                 </div>
             `).join('');
         }
 
-        function quickFill(p) {
-            const input = document.getElementById('u_field');
-            if(input) {
-                input.focus();
-                showToast("أدخل كود فئة " + p + " ر.ي");
+        function fill(code) {
+            const inp = document.getElementById('code-input');
+            if(inp) {
+                inp.focus();
+                showToast("أدخل كود فئة " + code);
             }
         }
 
-        // منطق السلايدر
-        let sIdx = 0;
-        const slides = document.querySelectorAll('.slide');
+        // 3. السلايدر
+        let mIdx = 0;
+        const msgs = document.querySelectorAll('.msg-item');
         setInterval(() => {
-            slides[sIdx].classList.remove('active');
-            sIdx = (sIdx + 1) % slides.length;
-            slides[sIdx].classList.add('active');
-        }, 5000);
+            msgs[mIdx].classList.remove('active');
+            mIdx = (mIdx + 1) % msgs.length;
+            msgs[mIdx].classList.add('active');
+        }, 4000);
 
-        function performAuth() {
-            const user = document.login.username.value.trim();
-            if(!user) return false;
-            document.getElementById('auth_btn').innerText = "...جاري الاتصال";
+        // 4. تسجيل الدخول
+        function tryLogin() {
+            const u = document.login.username.value.trim();
+            if(!u) return false;
+            document.getElementById('login-btn').innerText = "...";
+            
             if ("$(chap-id)" !== "") {
-                document.sendin.username.value = user;
-                document.sendin.password.value = hexMD5("$(chap-id)" + user + "$(chap-challenge)");
+                document.sendin.username.value = u;
+                document.sendin.password.value = hexMD5("$(chap-id)" + u + "$(chap-challenge)");
                 document.sendin.submit();
                 return false;
             }
-            document.login.password.value = user;
+            document.login.password.value = u;
             return true;
         }
 
-        function toggleLanguage() {
-            lang = lang === 'ar' ? 'en' : 'ar';
-            document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
-            document.querySelectorAll('[data-i18n]').forEach(el => {
-                const key = el.getAttribute('data-i18n');
-                el.innerText = i18n[lang][key];
-            });
+        function showToast(txt) {
+            const t = document.getElementById('toast');
+            document.getElementById('toast-msg').innerText = txt;
+            t.classList.add('show');
+            setTimeout(() => t.classList.remove('show'), 3000);
         }
 
-        function showToast(msg) {
-            const t = document.getElementById('toast');
-            document.getElementById('toast-msg').innerText = msg;
-            t.classList.add('show');
-            setTimeout(() => t.classList.remove('show'), 3500);
-        }
+        // تبديل اللغة عند الضغط على الشعار (ميزة خفية)
+        document.querySelector('.logo').addEventListener('click', () => {
+            currentLang = currentLang === 'ar' ? 'en' : 'ar';
+            document.documentElement.dir = currentLang === 'ar' ? 'rtl' : 'ltr';
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                el.innerText = langData[currentLang][el.getAttribute('data-i18n')];
+            });
+        });
 
         window.onload = () => {
-            renderPlans();
+            renderPkgs();
             const err = "$(error)";
             if(err && err !== "$(error)") showToast(err);
-            if(document.getElementById('u_field')) document.getElementById('u_field').focus();
+            if(document.getElementById('code-input')) document.getElementById('code-input').focus();
         };
     </script>
 </body>
