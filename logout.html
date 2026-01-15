@@ -1,0 +1,115 @@
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="theme-color" content="#6457C6">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تم تسجيل الدخول</title>
+    <link rel="stylesheet" type="text/css" href="css/style.css">
+    <script src="js/script.js" defer></script>
+
+    <script language="JavaScript">
+        function openLogin() {
+            if (window.name != 'hotspot_logout') return true;
+            open('$(link-login)', '_blank', '');
+            window.close();
+            return false;
+        }
+    </script>
+</head>
+
+<body>
+
+    <div id="main-color"><span>لون</span>
+    </div>
+    <div id="showc-col" class="all-color show-c">
+        <div id="color1"></div>
+        <div id="color2"></div>
+        <div id="color3"></div>
+        <div id="color4"></div>
+        <div id="color5"></div>
+        <div id="color6"></div>
+    </div>
+
+
+    <section id="mainpage">
+
+        <div class="wifiimg">
+            <span><img src="img/apwifi.png"></span>
+            <span><img src="img/phone.png"></span>
+        </div>
+        <div class="wifiicons">
+            <span><img src="img/wifi.png"></span>
+            <span><img src="img/wifi.png"></span>
+        </div>
+        <div class="maintitle">
+            <h1> شبكة تايم نت اللاسلكية</h1>
+        </div>
+       
+    </section>
+    <section id="netviwe">
+        <div class="title">
+            <h1>تفاصيل الاستخدام</h1>
+        </div>
+        <div class="logeinbox">
+            <div class="beard">
+
+                <table style=" font-size: large; font-weight:bold; color: white;" cellpadding="2" dir="rtl">
+                    <tr>
+                        <td><span style="background: darkgray;" class="style3"> الوقت المستخدم : $(uptime)</span></td>
+                        <td><span class="style3"></span></td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <span style="background: rgb(78, 78, 78); " class=" style2 ">الوقت المتبقي :
+                                $(session-time-left)</span>
+                        </td>
+                        <td><span class="style3 "></span></td>
+                    </tr>
+
+
+                    <tr>
+                        <td><span style="background: darkgray; " class="style2 "> التحميل المتبقي :
+                                $(remain-bytes-total-nice)</span></td>
+                        <td><span class="style3 "></span></td>
+
+                    </tr>
+                    <tr>
+                        <td><span style="background: rgb(78, 78, 78); " class="style3 ">الرفع المستخدم :
+                                $(bytes-in-nice)</span></td>
+                        <td><span class="style3 "></span></td>
+                    </tr>
+                    <tr>
+                        <td><span style="background: darkgray;" class="style3 ">التحميل المستخدم :
+                                $(bytes-out-nice)</span></td>
+                        <td><span class="style3 "></span></td>
+                    </tr>
+                </table>
+                <form action="$(link-login)" name="login" onSubmit="return openLogin()">
+
+                    <button type="submit" value="login">
+                        <h2> تسجيل الدخول</h2>
+                    </button>
+                </form>
+            </div>
+        </div>
+    </section>
+
+
+ 
+
+    <section id="contact">
+
+        <div class="contact-container">
+            <h1> خدمة العملاء : 777019176 -- 772727466  </h1>
+        </div>
+    </section>
+
+    <div class="footer">
+      
+    </div>
+</body>
+
+</html>
