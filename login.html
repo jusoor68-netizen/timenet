@@ -67,6 +67,7 @@
             text-align: center;
             padding: 20px 0;
             animation: floatLogo 6s ease-in-out infinite;
+            flex-shrink: 0; /* منع التقليص */
         }
 
         @keyframes floatLogo {
@@ -97,6 +98,7 @@
             margin-bottom: 25px;
             box-shadow: 0 15px 35px rgba(0,0,0,0.5);
             position: relative;
+            flex-shrink: 0; /* منع التقليص - هام جداً */
         }
 
         /* لمعان متحرك على البطاقة */
@@ -189,6 +191,7 @@
             padding-right: 10px;
             color: var(--primary);
             font-weight: bold;
+            flex-shrink: 0; /* منع التقليص */
         }
 
         .plans-wrapper {
@@ -198,6 +201,8 @@
             padding-bottom: 15px;
             scrollbar-width: none;
             margin-bottom: 10px;
+            flex-shrink: 0; /* منع التقليص - هام لظهور الباقات */
+            min-height: 100px; /* ضمان ارتفاع أدنى */
         }
         .plans-wrapper::-webkit-scrollbar { display: none; }
 
@@ -226,7 +231,7 @@
 
         /* بانر الترفيه */
         .ent-banner {
-            margin-top: auto;
+            margin-top: 20px; /* تغيير من auto إلى رقم ثابت لضمان عدم التداخل */
             background: rgba(0,0,0,0.5);
             border: 1px solid rgba(255,255,255,0.2);
             border-radius: 20px;
@@ -237,6 +242,7 @@
             text-decoration: none;
             margin-bottom: 20px;
             transition: 0.3s;
+            flex-shrink: 0; /* منع التقليص */
         }
 
         .ent-banner:active {
@@ -264,7 +270,7 @@
         }
         #toast.show { transform: translateX(-50%) translateY(0); }
 
-        footer { text-align: center; font-size: 0.7rem; color: rgba(255,255,255,0.3); padding-bottom: 10px; }
+        footer { text-align: center; font-size: 0.7rem; color: rgba(255,255,255,0.3); padding-bottom: 10px; flex-shrink: 0; }
 
     </style>
 </head>
