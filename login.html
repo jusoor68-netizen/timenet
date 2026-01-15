@@ -95,21 +95,43 @@
             text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.5); margin-top: 10px;
         }
 
-        /* السلايدر الإعلاني العلوي */
-        .top-ad-slider {
-            width: 100%; height: 50px; background: rgba(255,255,255,0.05);
-            border-radius: 15px; margin-bottom: 20px; overflow: hidden;
-            position: relative; border: 1px solid var(--border);
-            display: flex; align-items: center; justify-content: center;
+        /* السلايدر الإعلاني الجديد (صور/أيقونات) */
+        .ad-carousel-container {
+            width: 100%; margin-bottom: 25px; position: relative;
+            border-radius: 20px; overflow: hidden; border: 1px solid var(--border);
+            box-shadow: 0 5px 20px rgba(0,0,0,0.5); height: 120px;
         }
-        .ad-slide {
-            position: absolute; width: 100%; opacity: 0; transform: translateY(100%);
-            transition: 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-            font-size: 0.9rem; color: #fff; font-weight: bold;
-            display: flex; align-items: center; justify-content: center; gap: 8px;
+
+        .ad-carousel {
+            display: flex; width: 100%; height: 100%;
+            overflow-x: auto; scroll-snap-type: x mandatory;
+            scrollbar-width: none; -webkit-overflow-scrolling: touch;
         }
-        .ad-slide.active { opacity: 1; transform: translateY(0); }
-        .ad-slide span { color: var(--primary); }
+        .ad-carousel::-webkit-scrollbar { display: none; }
+
+        .ad-card {
+            min-width: 100%; height: 100%;
+            background: linear-gradient(135deg, #1a1a1a, #000);
+            display: flex; align-items: center; justify-content: flex-start;
+            padding: 0 25px; box-sizing: border-box; scroll-snap-align: center;
+            position: relative;
+        }
+
+        .ad-icon {
+            font-size: 3rem; margin-left: 20px;
+            filter: drop-shadow(0 0 15px rgba(255,255,255,0.2));
+            animation: bounce 2s infinite;
+        }
+        
+        .ad-content h4 { color: var(--primary); font-size: 1.1rem; margin-bottom: 5px; font-weight: 900; }
+        .ad-content p { color: #eee; font-size: 0.85rem; font-weight: bold; }
+
+        .ad-dots {
+            position: absolute; bottom: 10px; left: 0; width: 100%;
+            display: flex; justify-content: center; gap: 6px; z-index: 2;
+        }
+        .dot { width: 6px; height: 6px; background: rgba(255,255,255,0.3); border-radius: 50%; transition: 0.3s; }
+        .dot.active { background: var(--primary); width: 18px; border-radius: 10px; }
 
         .neon-input {
             width: 100%; padding: 15px; background: rgba(0,0,0,0.5);
@@ -254,6 +276,7 @@
         #toast.show { transform: translateX(-50%) translateY(0); }
 
         @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.1); } 100% { transform: scale(1); } }
+        @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
 
     </style>
 </head>
@@ -366,16 +389,39 @@
                     </div>
                     $(else)
                     
-                    <!-- السلايدر الإعلاني العلوي الجديد -->
-                    <div class="top-ad-slider">
-                        <div class="ad-slide active">
-                            <span>🔥</span> عرض خاص: باقة الأسبوع بخصم 20%
+                    <!-- السلايدر الإعلاني الجديد (صور/أيقونات) -->
+                    <div class="ad-carousel-container">
+                        <div class="ad-carousel" id="adCarousel">
+                            <!-- شريحة 1 -->
+                            <div class="ad-card" style="background: linear-gradient(135deg, #1a1a1a, #000);">
+                                <div class="ad-icon">🔥</div>
+                                <div class="ad-content">
+                                    <h4>عرض خاص VIP</h4>
+                                    <p>خصم 20% على الباقات الشهرية</p>
+                                </div>
+                            </div>
+                            <!-- شريحة 2 -->
+                            <div class="ad-card" style="background: linear-gradient(135deg, #0f0c29, #302b63);">
+                                <div class="ad-icon">🎮</div>
+                                <div class="ad-content">
+                                    <h4>وضع الجيمر</h4>
+                                    <p>بينج منخفض وثبات عالي للألعاب</p>
+                                </div>
+                            </div>
+                            <!-- شريحة 3 -->
+                            <div class="ad-card" style="background: linear-gradient(135deg, #11998e, #38ef7d);">
+                                <div class="ad-icon">🎁</div>
+                                <div class="ad-content">
+                                    <h4>هدية مجانية</h4>
+                                    <p>ساعة إضافية عند ربط جهازك</p>
+                                </div>
+                            </div>
                         </div>
-                        <div class="ad-slide">
-                            <span>⚡</span> سرعة مضاعفة عند تفعيل وضع الجيمر
-                        </div>
-                        <div class="ad-slide">
-                            <span>🎁</span> اربط كرتك واحصل على ساعة مجانية
+                        <!-- النقاط -->
+                        <div class="ad-dots" id="adDots">
+                            <span class="dot active"></span>
+                            <span class="dot"></span>
+                            <span class="dot"></span>
                         </div>
                     </div>
 
@@ -642,17 +688,40 @@
             if(savedCode && saveEnabled && document.getElementById('code-input')) document.getElementById('code-input').value = savedCode;
         };
 
-        // Top Ad Slider Logic
+        // --- 7. Auto Scroll & Carousel Logic ---
         (function() {
-            let sI = 0; 
-            const slides = document.querySelectorAll('.ad-slide');
-            if(slides.length > 0) {
-                setInterval(()=>{
-                    slides[sI].classList.remove('active'); 
-                    sI = (sI + 1) % slides.length; 
-                    slides[sI].classList.add('active');
+            const carousel = document.getElementById('adCarousel');
+            const dots = document.querySelectorAll('.dot');
+            if(!carousel) return;
+
+            let scrollInterval;
+
+            function startAutoScroll() {
+                clearInterval(scrollInterval);
+                scrollInterval = setInterval(() => {
+                    const cardWidth = carousel.offsetWidth;
+                    const maxScroll = carousel.scrollWidth - cardWidth;
+                    
+                    // If near end, loop back
+                    if (carousel.scrollLeft >= maxScroll - 5) {
+                        carousel.scrollTo({left: 0, behavior: 'smooth'});
+                    } else {
+                        carousel.scrollBy({left: cardWidth, behavior: 'smooth'});
+                    }
                 }, 4000);
             }
+
+            carousel.addEventListener('scroll', () => {
+                const index = Math.round(carousel.scrollLeft / carousel.offsetWidth);
+                dots.forEach(d => d.classList.remove('active'));
+                if(dots[index]) dots[index].classList.add('active');
+            });
+
+            // Pause on touch
+            carousel.addEventListener('touchstart', () => clearInterval(scrollInterval));
+            carousel.addEventListener('touchend', startAutoScroll);
+
+            startAutoScroll();
         })();
 
     </script>
