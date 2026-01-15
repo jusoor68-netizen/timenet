@@ -3,24 +3,24 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>TIMENET APP</title>
+    <title>TIMENET VIP</title>
     
     <!-- مكتبة التشفير -->
     <script src="md5.js"></script>
 
     <style>
         :root {
-            /* القيم الافتراضية (الأخضر الكوني) */
-            --primary: #00f260;
-            --secondary: #0575e6;
-            --accent: #f80759;
+            /* القيم الافتراضية: النمط الملكي الذهبي */
+            --primary: #ffd700;       /* ذهبي */
+            --secondary: #b8860b;     /* ذهبي غامق */
+            --accent: #ff0000;        /* أحمر للتميز */
             
-            --bg-deep: #050505;
-            --glass-bg: rgba(255, 255, 255, 0.08);
-            --glass-nav: rgba(15, 12, 41, 0.85);
-            --border: rgba(255, 255, 255, 0.15);
+            --bg-deep: #000000;       /* أسود ملكي */
+            --glass-bg: rgba(20, 20, 20, 0.6);
+            --glass-nav: rgba(0, 0, 0, 0.9);
+            --border: rgba(255, 215, 0, 0.2); /* حدود ذهبية خفيفة */
             --text: #ffffff;
-            --text-dim: #9ca3af;
+            --text-dim: #cfcfcf;
             --nav-height: 70px;
         }
 
@@ -35,20 +35,22 @@
         }
 
         body {
-            background-color: var(--bg-deep);
+            /* جعل الخلفية شفافة لتظهر النجوم */
+            background-color: transparent;
             color: var(--text);
             height: 100vh;
             display: flex;
             flex-direction: column;
             overflow: hidden;
             position: relative;
-            transition: background 0.5s;
         }
 
-        /* خلفية النجوم */
+        /* خلفية النجوم (Canvas) */
         #cosmic-canvas {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            z-index: 0; background: linear-gradient(to bottom, #0f0c29, #302b63, #24243e);
+            z-index: -1; /* خلف كل شيء */
+            /* تدرج لوني افتراضي في حال تأخر الكانفاس */
+            background: linear-gradient(to bottom, #000000, #1a1a1a);
         }
 
         /* الحاوية الرئيسية */
@@ -67,70 +69,37 @@
             align-items: center;
             padding: 15px 20px;
             flex-shrink: 0;
+            z-index: 20;
         }
         
         .menu-btn {
             font-size: 1.6rem; cursor: pointer;
-            background: rgba(255,255,255,0.1);
+            background: rgba(0,0,0,0.3);
             width: 45px; height: 45px;
             display: flex; align-items: center; justify-content: center;
             border-radius: 12px;
-            border: 1px solid rgba(255,255,255,0.2);
+            border: 1px solid var(--border);
             transition: 0.3s;
-            color: #fff;
+            color: var(--primary);
         }
-        .menu-btn:hover { background: var(--primary); color: #000; border-color: var(--primary); }
+        .menu-btn:hover { background: var(--primary); color: #000; }
 
-        .logo { font-size: 1.8rem; font-weight: 900; letter-spacing: 2px; text-shadow: 0 0 15px rgba(5, 117, 230, 0.8); }
+        .logo { font-size: 1.8rem; font-weight: 900; letter-spacing: 2px; text-shadow: 0 0 10px rgba(255, 215, 0, 0.5); }
         .logo span { color: var(--primary); transition: color 0.5s; }
-
-        /* القائمة الجانبية (الإعدادات) */
-        .side-menu {
-            position: fixed; top: 0; right: -100%; width: 85%; max-width: 320px; height: 100%;
-            background: rgba(10, 10, 20, 0.98); backdrop-filter: blur(25px);
-            z-index: 1100; transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-            border-left: 1px solid var(--border); padding: 25px;
-            box-shadow: -10px 0 40px rgba(0,0,0,0.8);
-            display: flex; flex-direction: column;
-        }
-        .side-menu.open { right: 0; }
-        
-        .menu-overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.6); z-index: 1000;
-            opacity: 0; pointer-events: none; transition: 0.3s;
-        }
-        .menu-overlay.open { opacity: 1; pointer-events: auto; }
-
-        .menu-header {
-            display: flex; justify-content: space-between; align-items: center;
-            margin-bottom: 30px; border-bottom: 1px solid rgba(255,255,255,0.1);
-            padding-bottom: 15px;
-        }
-        .menu-section { margin-bottom: 30px; }
-        .menu-label { font-size: 0.9rem; color: var(--text-dim); margin-bottom: 15px; display: block; font-weight: bold; }
-
-        /* ثيمات الألوان */
-        .theme-grid { display: flex; gap: 15px; justify-content: flex-start; flex-wrap: wrap; }
-        .theme-circle {
-            width: 45px; height: 45px; border-radius: 50%; cursor: pointer;
-            border: 2px solid rgba(255,255,255,0.2); transition: 0.3s;
-            position: relative;
-        }
-        .theme-circle:hover { transform: scale(1.1); }
-        .theme-circle.active { border-color: #fff; transform: scale(1.1); box-shadow: 0 0 15px var(--primary); }
 
         /* منطقة المحتوى المتغير (Pages) */
         .content-area {
             flex: 1;
             overflow-y: auto;
-            padding: 10px 20px 100px; /* مسافة سفلية عشان الناف بار */
+            /* زيادة المسافة السفلية لضمان عدم اختفاء العناصر خلف الشريط السفلي */
+            padding: 10px 20px 120px; 
             position: relative;
             scrollbar-width: none;
+            -webkit-overflow-scrolling: touch;
         }
         .content-area::-webkit-scrollbar { display: none; }
 
-        /* إخفاء وإظهار التبويبات */
+        /* التبويبات */
         .tab-page {
             display: none;
             animation: fadeIn 0.4s ease;
@@ -145,26 +114,27 @@
         /* === Styles for TAB 1: HOME (LOGIN) === */
         .glass-card {
             background: var(--glass-bg);
-            backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px);
+            backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
             border: 1px solid var(--border); border-radius: 25px;
             padding: 25px 20px; text-align: center;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
             margin-top: 10px;
         }
 
         .neon-input {
             width: 100%; padding: 15px;
-            background: rgba(0,0,0,0.3); border: 1px solid var(--border);
-            border-radius: 15px; color: #fff; font-size: 1.1rem;
-            text-align: center; margin-bottom: 20px; transition: 0.3s;
+            background: rgba(0,0,0,0.5); border: 1px solid var(--border);
+            border-radius: 15px; color: var(--primary); font-size: 1.2rem; font-weight: bold;
+            text-align: center; margin-bottom: 20px; transition: 0.3s; letter-spacing: 2px;
         }
-        .neon-input:focus { border-color: var(--primary); background: rgba(0,0,0,0.5); outline: none; }
+        .neon-input:focus { border-color: var(--primary); box-shadow: 0 0 15px rgba(255, 215, 0, 0.2); outline: none; }
+        .neon-input::placeholder { color: #666; font-weight: normal; letter-spacing: 0; }
 
         .btn-main {
             width: 100%; padding: 15px; border-radius: 50px; border: none;
-            background: linear-gradient(90deg, var(--secondary), var(--primary));
-            color: #fff; font-weight: 800; font-size: 1rem; cursor: pointer;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.3); transition: 0.3s;
+            background: linear-gradient(135deg, var(--secondary), var(--primary));
+            color: #000; font-weight: 900; font-size: 1.1rem; cursor: pointer;
+            box-shadow: 0 5px 20px rgba(255, 215, 0, 0.2); transition: 0.3s;
         }
         .btn-main:active { transform: scale(0.98); }
 
@@ -175,45 +145,50 @@
 
         /* بانر الترفيه في الرئيسية */
         .ent-banner {
-            margin-top: 20px; background: rgba(255,255,255,0.05);
+            margin-top: 25px; background: rgba(0,0,0,0.6);
             border: 1px solid var(--border); border-radius: 18px; padding: 15px;
             display: flex; align-items: center; gap: 15px; text-decoration: none;
             transition: 0.3s;
+            position: relative; overflow: hidden;
         }
-        .ent-banner:active { transform: scale(0.98); background: rgba(255,255,255,0.1); }
-        .ent-icon { font-size: 1.5rem; animation: pulse 2s infinite; }
-        .ent-info h4 { font-size: 0.9rem; color: #fff; margin-bottom: 2px; }
-        .ent-info p { font-size: 0.7rem; color: var(--text-dim); }
+        .ent-banner::before {
+            content: ''; position: absolute; top: 0; left: 0; width: 4px; height: 100%; background: var(--primary);
+        }
+        .ent-banner:active { transform: scale(0.98); background: rgba(255,255,255,0.05); }
+        .ent-icon { font-size: 1.8rem; animation: pulse 2s infinite; }
+        .ent-info h4 { font-size: 1rem; color: var(--primary); margin-bottom: 2px; font-weight: bold; }
+        .ent-info p { font-size: 0.75rem; color: #fff; }
 
         /* === Styles for TAB 2: PLANS === */
         .plans-grid { display: grid; grid-template-columns: 1fr; gap: 15px; }
         .plan-item {
             display: flex; align-items: center; justify-content: space-between;
-            background: rgba(255,255,255,0.05); border: 1px solid var(--border);
+            background: rgba(0,0,0,0.6); border: 1px solid var(--border);
             border-radius: 20px; padding: 15px 20px; cursor: pointer; transition: 0.2s;
         }
-        .plan-item:active { transform: scale(0.98); background: rgba(255,255,255,0.15); border-color: var(--primary); }
+        .plan-item:active { transform: scale(0.98); border-color: var(--primary); box-shadow: 0 0 10px rgba(255, 215, 0, 0.2); }
         .plan-left { display: flex; align-items: center; gap: 15px; }
-        .p-badge { width: 40px; height: 40px; background: rgba(255,255,255,0.1); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; }
-        .p-det h4 { font-size: 1.1rem; font-weight: bold; }
-        .p-det span { font-size: 0.8rem; color: var(--text-dim); }
-        .p-price { font-size: 1.2rem; font-weight: 900; color: var(--primary); }
+        .p-badge { width: 45px; height: 45px; background: rgba(255,215,0,0.1); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.4rem; color: var(--primary); border: 1px solid rgba(255,215,0,0.1); }
+        .p-det h4 { font-size: 1.1rem; font-weight: bold; color: #fff; }
+        .p-det span { font-size: 0.85rem; color: var(--primary); }
+        .p-price { font-size: 1.3rem; font-weight: 900; color: #fff; text-shadow: 0 0 5px rgba(0,0,0,0.5); }
 
-        /* === Styles for TAB 3: HELP & LOCATIONS & CONTACT === */
+        /* === Styles for OTHER TABS === */
         .info-card {
-            background: rgba(255,255,255,0.05); border-radius: 20px; padding: 20px; margin-bottom: 15px;
+            background: rgba(0,0,0,0.6); border: 1px solid var(--border); border-radius: 20px; padding: 20px; margin-bottom: 15px;
         }
-        .info-title { color: var(--primary); font-weight: bold; margin-bottom: 10px; display: flex; align-items: center; gap: 10px; }
+        .info-title { color: var(--primary); font-weight: bold; margin-bottom: 10px; display: flex; align-items: center; gap: 10px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 10px; }
         .info-text { font-size: 0.9rem; color: #ddd; line-height: 1.6; }
-        .step-row { display: flex; gap: 15px; margin-bottom: 15px; align-items: flex-start; }
-        .step-num { background: var(--secondary); width: 25px; height: 25px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; font-weight: bold; flex-shrink: 0; }
         
         .contact-btn {
-            display: block; width: 100%; padding: 12px; text-align: center;
-            background: rgba(255,255,255,0.1); border-radius: 12px; margin-bottom: 10px;
+            display: block; width: 100%; padding: 14px; text-align: center;
+            background: rgba(255,255,255,0.05); border-radius: 12px; margin-bottom: 10px;
             text-decoration: none; color: white; font-weight: bold; border: 1px solid var(--border);
+            transition: 0.3s;
         }
-        .contact-btn.wa { background: #25D366; border-color: #25D366; color: #fff; }
+        .contact-btn:hover { background: var(--primary); color: #000; }
+        .contact-btn.wa { border-color: #25D366; color: #25D366; }
+        .contact-btn.wa:hover { background: #25D366; color: #fff; }
 
         /* === BOTTOM NAVIGATION === */
         .bottom-nav {
@@ -224,12 +199,12 @@
             border-top: 1px solid var(--border);
             display: flex; justify-content: space-around; align-items: center;
             z-index: 100;
-            padding-bottom: 5px; /* رفع بسيط للأيقونات */
+            padding-bottom: 5px;
         }
 
         .nav-item {
             display: flex; flex-direction: column; align-items: center; justify-content: center;
-            color: var(--text-dim); text-decoration: none;
+            color: #666; text-decoration: none;
             width: 20%; height: 100%; position: relative;
             transition: 0.3s;
         }
@@ -237,33 +212,63 @@
         .nav-item svg { width: 24px; height: 24px; fill: currentColor; margin-bottom: 4px; transition: 0.3s; }
         .nav-item span { font-size: 0.7rem; font-weight: 600; }
 
-        /* Active State */
         .nav-item.active { color: var(--primary); }
-        .nav-item.active svg { transform: translateY(-5px); filter: drop-shadow(0 0 8px var(--primary)); }
+        .nav-item.active svg { transform: translateY(-5px); filter: drop-shadow(0 0 5px var(--primary)); }
         
-        /* Main Home Button (Center) */
-        .nav-item.main-home { 
-            position: relative; top: -20px; 
-        }
+        /* Main Home Button */
+        .nav-item.main-home { position: relative; top: -25px; }
         .nav-item.main-home .circle {
-            width: 55px; height: 55px;
+            width: 60px; height: 60px;
             background: linear-gradient(135deg, var(--secondary), var(--primary));
             border-radius: 50%;
             display: flex; align-items: center; justify-content: center;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.5);
-            border: 4px solid var(--bg-deep); /* يدمج مع الخلفية */
-            color: #fff;
+            box-shadow: 0 0 15px rgba(255, 215, 0, 0.3);
+            border: 4px solid #000; /* دمج مع الخلفية السوداء */
+            color: #000;
             transition: 0.5s;
         }
         .nav-item.main-home.active .circle {
-            box-shadow: 0 0 20px var(--primary);
+            box-shadow: 0 0 25px var(--primary); transform: scale(1.1);
         }
+
+        /* === القائمة الجانبية === */
+        .side-menu {
+            position: fixed; top: 0; right: -100%; width: 85%; max-width: 320px; height: 100%;
+            background: rgba(10, 10, 10, 0.98); backdrop-filter: blur(10px);
+            z-index: 1100; transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            border-left: 1px solid var(--border); padding: 25px;
+            box-shadow: -10px 0 40px rgba(0,0,0,0.8);
+            display: flex; flex-direction: column;
+        }
+        .side-menu.open { right: 0; }
+        
+        .menu-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.8); z-index: 1000;
+            opacity: 0; pointer-events: none; transition: 0.3s;
+        }
+        .menu-overlay.open { opacity: 1; pointer-events: auto; }
+
+        .menu-header {
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 30px; border-bottom: 1px solid rgba(255,255,255,0.1);
+            padding-bottom: 15px; color: var(--primary);
+        }
+        .menu-section { margin-bottom: 30px; }
+        .menu-label { font-size: 0.9rem; color: #fff; margin-bottom: 15px; display: block; font-weight: bold; }
+
+        .theme-grid { display: flex; gap: 15px; justify-content: flex-start; flex-wrap: wrap; }
+        .theme-circle {
+            width: 45px; height: 45px; border-radius: 50%; cursor: pointer;
+            border: 2px solid rgba(255,255,255,0.2); transition: 0.3s;
+        }
+        .theme-circle:hover { transform: scale(1.1); border-color: #fff; }
 
         /* Toast */
         #toast {
             position: fixed; top: 20px; left: 50%; transform: translateX(-50%) translateY(-100px);
-            background: var(--accent); color: white; padding: 10px 25px; border-radius: 50px;
-            z-index: 2000; transition: 0.4s; font-weight: bold;
+            background: var(--accent); color: white; padding: 10px 30px; border-radius: 50px;
+            z-index: 2000; transition: 0.4s; font-weight: bold; border: 1px solid #fff;
         }
         #toast.show { transform: translateX(-50%) translateY(0); }
 
@@ -273,48 +278,47 @@
 </head>
 <body>
 
+    <!-- خلفية النجوم -->
     <canvas id="cosmic-canvas"></canvas>
-    <div id="toast">⚠️ <span id="toast-msg"></span></div>
+    <div id="toast">🔔 <span id="toast-msg"></span></div>
     
-    <!-- طبقة تغطية القائمة -->
     <div class="menu-overlay" id="menu-overlay" onclick="toggleMenu()"></div>
 
-    <!-- القائمة الجانبية (الإعدادات والثيمات) -->
+    <!-- القائمة الجانبية -->
     <div class="side-menu" id="side-menu">
         <div class="menu-header">
-            <h3>الإعدادات</h3>
-            <span onclick="toggleMenu()" style="cursor:pointer; font-size:1.5rem;">&times;</span>
+            <h3>خيارات VIP</h3>
+            <span onclick="toggleMenu()" style="cursor:pointer; font-size:1.5rem; color:#fff;">&times;</span>
         </div>
 
-        <!-- قسم تغيير الثيم -->
         <div class="menu-section">
-            <span class="menu-label">🎨 اختر لون التطبيق</span>
+            <span class="menu-label">🎨 تخصيص المظهر</span>
             <div class="theme-grid">
-                <!-- الأخضر (الافتراضي) -->
+                <!-- ذهبي (الافتراضي) -->
+                <div class="theme-circle" style="background: linear-gradient(135deg, #ff8c00, #ffd700); border-color: #ffd700;" onclick="setTheme('gold')"></div>
+                <!-- أخضر -->
                 <div class="theme-circle" style="background: linear-gradient(135deg, #0575e6, #00f260);" onclick="setTheme('green')"></div>
-                <!-- الأزرق -->
+                <!-- أزرق -->
                 <div class="theme-circle" style="background: linear-gradient(135deg, #0072ff, #00c6ff);" onclick="setTheme('blue')"></div>
-                <!-- البنفسجي -->
+                <!-- بنفسجي -->
                 <div class="theme-circle" style="background: linear-gradient(135deg, #651fff, #d500f9);" onclick="setTheme('purple')"></div>
-                <!-- الذهبي -->
-                <div class="theme-circle" style="background: linear-gradient(135deg, #ff8c00, #ffd700);" onclick="setTheme('gold')"></div>
-                <!-- الأحمر -->
+                <!-- أحمر -->
                 <div class="theme-circle" style="background: linear-gradient(135deg, #ff416c, #ff4b2b);" onclick="setTheme('red')"></div>
             </div>
         </div>
 
         <div class="menu-section">
-            <span class="menu-label">⚙️ خيارات أخرى</span>
-            <div style="background:rgba(255,255,255,0.05); padding:15px; border-radius:12px; margin-bottom:10px;">
-                <label style="display:flex; justify-content:space-between; align-items:center;">
-                    <span>حفظ الكرت تلقائياً</span>
+            <span class="menu-label">⚙️ الإعدادات</span>
+            <div style="background:rgba(255,255,255,0.05); padding:15px; border-radius:12px; border:1px solid var(--border);">
+                <label style="display:flex; justify-content:space-between; align-items:center; color:#ddd;">
+                    <span>حفظ الكرت</span>
                     <input type="checkbox" id="save-card-check" onchange="toggleSaveCard(this.checked)">
                 </label>
             </div>
         </div>
         
-        <div style="margin-top:auto; font-size:0.8rem; color:var(--text-dim); text-align:center;">
-            TIMENET V4.0
+        <div style="margin-top:auto; font-size:0.8rem; color:#666; text-align:center;">
+            TIMENET VIP SYSTEM
         </div>
     </div>
 
@@ -327,117 +331,95 @@
 
         <div class="content-area">
             
-            <!-- 1. تبويب الرئيسية (تسجيل الدخول) -->
+            <!-- 1. الرئيسية -->
             <section id="page-home" class="tab-page active">
                 <div class="glass-card">
                     $(if username)
                     <div style="padding: 20px 0;">
-                        <h2 style="margin-bottom: 10px;">أهلاً $(username)</h2>
-                        <div style="font-size: 0.9rem; color: var(--text-dim); margin-bottom: 20px;">حالة اتصالك الآن</div>
+                        <h2 style="margin-bottom: 10px; color: var(--primary);">أهلاً $(username)</h2>
+                        <div style="font-size: 0.9rem; color: #ccc; margin-bottom: 20px;">حالة الاشتراك</div>
                         
                         <div style="display:flex; justify-content:space-between; padding:10px; border-bottom:1px solid rgba(255,255,255,0.1);">
-                            <span>الوقت</span> <span style="color:var(--primary)">$(uptime)</span>
+                            <span>الوقت</span> <span style="color:var(--primary); font-weight:bold;">$(uptime)</span>
                         </div>
                         <div style="display:flex; justify-content:space-between; padding:10px; border-bottom:1px solid rgba(255,255,255,0.1);">
-                            <span>التحميل</span> <span style="color:var(--primary)">$(bytes-out-nice)</span>
+                            <span>التحميل</span> <span style="color:var(--primary); font-weight:bold;">$(bytes-out-nice)</span>
                         </div>
 
                         <form action="$(link-logout)" name="logout" style="margin-top: 25px;">
                             <input type="hidden" name="erase-cookie" value="on">
-                            <button type="submit" class="btn-main" style="background: var(--accent);">تسجيل خروج</button>
+                            <button type="submit" class="btn-main" style="background: var(--accent); color:#fff;">تسجيل خروج</button>
                         </form>
                     </div>
                     $(else)
-                    <h3 style="margin-bottom: 20px;">تسجيل الدخول</h3>
+                    <h3 style="margin-bottom: 20px; color: #fff;">تسجيل الدخول</h3>
                     <form name="login" action="$(link-login-only)" method="post" onsubmit="return tryLogin()">
                         <input type="hidden" name="dst" value="$(link-orig)">
                         <input type="hidden" name="popup" value="true">
                         <input type="hidden" name="password">
 
-                        <input type="text" name="username" id="code-input" class="neon-input" placeholder="أدخل كود الكرت هنا" autocomplete="off" required>
+                        <input type="text" name="username" id="code-input" class="neon-input" placeholder="أدخل الكود" autocomplete="off" required>
                         <button type="submit" class="btn-main" id="login-btn">اتصال</button>
                     </form>
                     <div class="mini-slider">
-                        <div class="slide-txt active">🚀 أسرع انترنت في المنطقة</div>
-                        <div class="slide-txt">💎 باقات تناسب جميع الاحتياجات</div>
-                        <div class="slide-txt">🎮 بينج منخفض للألعاب</div>
+                        <div class="slide-txt active">🚀 خدمة VIP فائقة السرعة</div>
+                        <div class="slide-txt">💎 استقرار عالي في الاتصال</div>
+                        <div class="slide-txt">🎮 مثالي للألعاب والبث المباشر</div>
                     </div>
                     $(endif)
                 </div>
 
-                <!-- بانر الترفيه في الرئيسية -->
+                <!-- بانر الترفيه -->
                 <a href="http://10.10.10.10" class="ent-banner">
                     <div class="ent-icon">🎬</div>
                     <div class="ent-info">
                         <h4>مركز الترفيه</h4>
-                        <p>شاهد الأفلام والمباريات مجاناً بدون نت</p>
+                        <p>سينما ومباريات مجانية داخل الشبكة</p>
                     </div>
                     <div style="margin-right:auto; color:var(--primary);">➔</div>
                 </a>
             </section>
 
-            <!-- 2. تبويب الباقات (الكروت) -->
+            <!-- 2. الباقات -->
             <section id="page-plans" class="tab-page">
-                <h3 style="margin-bottom: 15px; text-align: center;">قائمة الباقات المتوفرة</h3>
+                <h3 style="margin-bottom: 15px; text-align: center; color: var(--primary);">باقات VIP</h3>
                 <div class="plans-grid" id="plans-container">
                     <!-- JS Generated -->
                 </div>
             </section>
 
-            <!-- 3. تبويب التعليمات -->
+            <!-- 3. التعليمات -->
             <section id="page-help" class="tab-page">
-                <h3 style="margin-bottom: 15px; text-align: center;">تعليمات الاستخدام</h3>
+                <h3 style="margin-bottom: 15px; text-align: center; color: var(--primary);">الدعم والتعليمات</h3>
                 <div class="info-card">
-                    <div class="info-title">💡 كيف أتصل بالشبكة؟</div>
-                    <div class="step-row">
-                        <div class="step-num">1</div>
-                        <div class="info-text">تأكد من الاتصال بشبكة الواي فاي TIMENET وظهور صفحة الدخول.</div>
-                    </div>
-                    <div class="step-row">
-                        <div class="step-num">2</div>
-                        <div class="info-text">قم بشراء كرت من أحد نقاط البيع المعتمدة.</div>
-                    </div>
-                    <div class="step-row">
-                        <div class="step-num">3</div>
-                        <div class="info-text">اذهب للرئيسية، أدخل الكود في المربع واضغط "اتصال".</div>
-                    </div>
+                    <div class="info-title">💡 طريقة الاتصال</div>
+                    <div class="info-text">1. اشترِ كرت من نقاط البيع.<br>2. أدخل الكود في الصفحة الرئيسية.<br>3. اضغط زر اتصال.</div>
                 </div>
                 <div class="info-card">
-                    <div class="info-title">🔒 الحفاظ على الرصيد</div>
-                    <div class="info-text">قم بتسجيل الخروج عند الانتهاء من التصفح، أو أطفئ الواي فاي في جهازك.</div>
+                    <div class="info-title">🔒 ملاحظة مهمة</div>
+                    <div class="info-text">الكرت يرتبط بالجهاز الأول الذي تم استخدامه فيه ولا يمكن استخدامه في جهاز آخر.</div>
                 </div>
             </section>
 
-            <!-- 4. تبويب نقاط البيع -->
+            <!-- 4. المواقع -->
             <section id="page-loc" class="tab-page">
-                <h3 style="margin-bottom: 15px; text-align: center;">مواقع التوزيع</h3>
+                <h3 style="margin-bottom: 15px; text-align: center; color: var(--primary);">نقاط البيع المعتمدة</h3>
                 <div class="info-card">
-                    <div class="info-title">📍 البقالات والسوبرماركت</div>
-                    <ul style="list-style: none; padding-right: 10px; color: #ddd; font-size: 0.9rem; line-height: 2;">
-                        <li>• سوبر ماركت الخير - الشارع العام</li>
-                        <li>• بقالة الأمانة - جوار المسجد</li>
-                        <li>• مركز التوفير - الحارة الشرقية</li>
-                    </ul>
-                </div>
-                <div class="info-card">
-                    <div class="info-title">📱 محلات الجوالات</div>
-                    <ul style="list-style: none; padding-right: 10px; color: #ddd; font-size: 0.9rem; line-height: 2;">
-                        <li>• عالم التقنية - السوق المركزي</li>
-                        <li>• توب فون - تقاطع الجامعة</li>
+                    <div class="info-title">📍 المنطقة الأولى</div>
+                    <ul style="list-style: none; padding: 0; color: #ccc;">
+                        <li style="padding:5px 0;">• سوبر ماركت المدينة</li>
+                        <li style="padding:5px 0;">• بقالة التوفيق</li>
                     </ul>
                 </div>
             </section>
 
-            <!-- 5. تبويب تواصل معنا -->
+            <!-- 5. تواصل -->
             <section id="page-contact" class="tab-page">
-                <h3 style="margin-bottom: 15px; text-align: center;">تواصل معنا</h3>
+                <h3 style="margin-bottom: 15px; text-align: center; color: var(--primary);">خدمة العملاء</h3>
                 <div class="info-card" style="text-align: center;">
-                    <p style="margin-bottom: 15px; color: var(--text-dim);">نسعد بخدمتكم على مدار 24 ساعة</p>
-                    <a href="tel:777019176" class="contact-btn">📞 اتصل بنا: 777019176</a>
-                    <a href="https://wa.me/967777019176" class="contact-btn wa">💬 واتساب مباشر</a>
-                    <div style="margin-top: 20px; font-size: 0.8rem; color: #555;">
-                        TIMENET &copy; 2026
-                    </div>
+                    <p style="margin-bottom: 15px; color: #ccc;">نحن هنا لخدمتك 24/7</p>
+                    <a href="tel:777019176" class="contact-btn">📞 اتصال: 777019176</a>
+                    <a href="https://wa.me/967777019176" class="contact-btn wa">💬 واتساب</a>
                 </div>
             </section>
 
@@ -449,24 +431,19 @@
                 <svg viewBox="0 0 24 24"><path d="M20 15.5c-1.25 0-2.45-.2-3.57-.57-.35-.11-.74-.03-1.02.24l-2.2 2.2c-2.83-1.44-5.15-3.75-6.59-6.59l2.2-2.21c.28-.26.36-.65.25-1C8.7 6.45 8.5 5.25 8.5 4c0-.55-.45-1-1-1H4c-.55 0-1 .45-1 1 0 9.39 7.61 17 17 17 .55 0 1-.45 1-1v-3.5c0-.55-.45-1-1-1zM19 12h2a9 9 0 0 0-9-9v2c3.87 0 7 3.13 7 7zm-4 0h2c0-2.76-2.24-5-5-5v2c1.66 0 3 1.34 3 3z"/></svg>
                 <span>تواصل</span>
             </div>
-            
             <div class="nav-item" onclick="switchTab('page-loc', this)">
                 <svg viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
                 <span>المواقع</span>
             </div>
-
-            <!-- الزر الرئيسي في الوسط -->
             <div class="nav-item main-home active" onclick="switchTab('page-home', this)">
                 <div class="circle">
-                    <svg viewBox="0 0 24 24" style="width:28px; height:28px; margin:0;"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+                    <svg viewBox="0 0 24 24" style="width:28px; height:28px; margin:0; fill:#000;"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
                 </div>
             </div>
-
             <div class="nav-item" onclick="switchTab('page-plans', this)">
                 <svg viewBox="0 0 24 24"><path d="M20 4H4c-1.11 0-1.99.89-1.99 2L2 18c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V6c0-1.11-.89-2-2-2zm-5 14H4v-4h11v4zm0-5H4V9h11v4zm5 5h-4V9h4v9z"/></svg>
                 <span>الكروت</span>
             </div>
-
             <div class="nav-item" onclick="switchTab('page-help', this)">
                 <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17h-2v-2h2v2zm2.07-7.75l-.9.92C13.45 12.9 13 13.5 13 15h-2v-.5c0-1.1.45-2.1 1.17-2.83l1.24-1.26c.37-.36.59-.86.59-1.41 0-1.1-.9-2-2-2s-2 .9-2 2H8c0-2.21 1.79-4 4-4s4 1.79 4 4c0 .88-.36 1.68-.93 2.25z"/></svg>
                 <span>تعليمات</span>
@@ -475,7 +452,7 @@
 
     </div>
 
-    <!-- ميكروتك فورم مخفي -->
+    <!-- ميكروتك -->
     <form name="sendin" action="$(link-login-only)" method="post" style="display:none">
         <input type="hidden" name="username" />
         <input type="hidden" name="password" />
@@ -484,35 +461,55 @@
     </form>
 
     <script>
-        // --- 1. Background Animation ---
-        const canvas = document.getElementById('cosmic-canvas');
-        const ctx = canvas.getContext('2d');
-        let w, h, stars = [];
-        
-        function initC() { w = canvas.width = window.innerWidth; h = canvas.height = window.innerHeight; stars=[]; for(let i=0;i<50;i++) stars.push({x:Math.random()*w, y:Math.random()*h, r:Math.random()*2, s:Math.random()*0.5+0.1}); }
-        function animC() {
-            ctx.clearRect(0,0,w,h);
-            var g=ctx.createLinearGradient(0,0,0,h); g.addColorStop(0,'#0f0c29'); g.addColorStop(1,'#24243e'); ctx.fillStyle=g; ctx.fillRect(0,0,w,h);
-            ctx.fillStyle='#fff';
-            stars.forEach(s=>{ ctx.beginPath(); ctx.arc(s.x,s.y,s.r,0,6.28); ctx.fill(); s.y-=s.s; if(s.y<0) s.y=h; });
-            requestAnimationFrame(animC);
-        }
-        window.onresize=initC; initC(); animC();
+        // --- 1. Canvas Stars (Scoped) ---
+        (function() {
+            const canvas = document.getElementById('cosmic-canvas');
+            if(!canvas) return;
+            const ctx = canvas.getContext('2d');
+            let cvsW, cvsH, stars = []; 
+            
+            function initC() { 
+                cvsW = canvas.width = window.innerWidth; 
+                cvsH = canvas.height = window.innerHeight; 
+                stars=[]; 
+                for(let i=0;i<60;i++) stars.push({x:Math.random()*cvsW, y:Math.random()*cvsH, r:Math.random()*2, s:Math.random()*0.5+0.1}); 
+            }
+            
+            function animC() {
+                ctx.clearRect(0,0,cvsW,cvsH);
+                var g=ctx.createLinearGradient(0,0,0,cvsH); 
+                g.addColorStop(0,'#000000'); 
+                g.addColorStop(1,'#1a1a1a'); 
+                ctx.fillStyle=g; 
+                ctx.fillRect(0,0,cvsW,cvsH);
+                ctx.fillStyle='#ffd700'; 
+                stars.forEach(s=>{ 
+                    ctx.beginPath(); 
+                    ctx.arc(s.x,s.y,s.r,0,6.28); 
+                    ctx.fill(); 
+                    s.y-=s.s; 
+                    if(s.y<0) s.y=cvsH; 
+                });
+                requestAnimationFrame(animC);
+            }
+            
+            window.addEventListener('resize', initC);
+            initC(); 
+            animC();
+        })();
 
-        // --- 2. Menu Logic ---
+        // --- 2. Menu ---
         function toggleMenu() {
-            const menu = document.getElementById('side-menu');
-            const overlay = document.getElementById('menu-overlay');
-            menu.classList.toggle('open');
-            overlay.classList.toggle('open');
+            document.getElementById('side-menu').classList.toggle('open');
+            document.getElementById('menu-overlay').classList.toggle('open');
         }
 
-        // --- 3. Themes Logic ---
+        // --- 3. Themes ---
         const themes = {
+            gold:  { p: '#ffd700', s: '#b8860b', a: '#ff0000' },
             green: { p: '#00f260', s: '#0575e6', a: '#f80759' },
             blue:  { p: '#00c6ff', s: '#0072ff', a: '#00d2ff' },
             purple:{ p: '#d500f9', s: '#651fff', a: '#aa00ff' },
-            gold:  { p: '#ffd700', s: '#ff8c00', a: '#ff4500' },
             red:   { p: '#ff4b2b', s: '#ff416c', a: '#ff9068' }
         };
 
@@ -522,28 +519,24 @@
             root.style.setProperty('--primary', t.p);
             root.style.setProperty('--secondary', t.s);
             root.style.setProperty('--accent', t.a);
-            
-            // Save to storage
             localStorage.setItem('timenet_theme', name);
-            showToast("تم تغيير الثيم بنجاح 🎨");
+            showToast("تم تطبيق اللون " + name);
         }
 
         function toggleSaveCard(checked) {
             localStorage.setItem('timenet_save_card', checked);
-            if (!checked) localStorage.removeItem('timenet_saved_code');
-            showToast(checked ? "تم تفعيل الحفظ التلقائي" : "تم إلغاء الحفظ التلقائي");
+            if(!checked) localStorage.removeItem('timenet_saved_code');
         }
 
-        // --- 4. Tab Logic ---
+        // --- 4. Tabs ---
         function switchTab(pageId, navEl) {
             document.querySelectorAll('.tab-page').forEach(p => p.classList.remove('active'));
             document.getElementById(pageId).classList.add('active');
-            
             document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
             if(navEl) navEl.classList.add('active');
         }
 
-        // --- 5. Plans Data ---
+        // --- 5. Plans ---
         const plans = [
             { p: 100, t: "3 ساعات", mb: "300 MB", i: "🥉" },
             { p: 200, t: "7 ساعات", mb: "700 MB", i: "🥈" },
@@ -572,24 +565,17 @@
             switchTab('page-home', document.querySelector('.main-home'));
             setTimeout(() => {
                 const inp = document.getElementById('code-input');
-                if(inp) {
-                    inp.value = ""; 
-                    inp.focus();
-                    showToast("تم اختيار فئة " + val + " - أدخل الكود");
-                }
+                if(inp) { inp.value = ""; inp.focus(); showToast("تم اختيار " + val); }
             }, 300);
         }
 
-        // --- 6. Login Logic ---
+        // --- 6. Login ---
         function tryLogin() {
             const u = document.login.username.value.trim();
-            if(!u) { showToast("الرجاء إدخال الكود"); return false; }
-
-            // Save card logic
+            if(!u) { showToast("أدخل الكود أولاً"); return false; }
             if(localStorage.getItem('timenet_save_card') === 'true') {
                 localStorage.setItem('timenet_saved_code', u);
             }
-
             document.getElementById('login-btn').innerText = "...";
             if ("$(chap-id)" !== "") {
                 document.sendin.username.value = u;
@@ -608,526 +594,33 @@
             setTimeout(() => t.classList.remove('show'), 3000);
         }
 
-        // --- Init ---
         window.onload = () => {
             renderPlans();
             const err = "$(error)";
             if(err && err !== "$(error)") showToast(err);
 
-            // Load Theme
             const savedTheme = localStorage.getItem('timenet_theme');
             if(savedTheme) setTheme(savedTheme);
 
-            // Check Saved Card
             const savedCode = localStorage.getItem('timenet_saved_code');
             const saveEnabled = localStorage.getItem('timenet_save_card') === 'true';
-            
-            if(document.getElementById('save-card-check')) {
-                document.getElementById('save-card-check').checked = saveEnabled;
-            }
-
-            if(savedCode && saveEnabled && document.getElementById('code-input')) {
-                document.getElementById('code-input').value = savedCode;
-            } else if(document.getElementById('code-input')) {
-                document.getElementById('code-input').focus();
-            }
+            if(document.getElementById('save-card-check')) document.getElementById('save-card-check').checked = saveEnabled;
+            if(savedCode && saveEnabled && document.getElementById('code-input')) document.getElementById('code-input').value = savedCode;
         };
 
         // Mini Slider
-        let sI = 0; const txts = document.querySelectorAll('.slide-txt');
-        setInterval(()=>{
-            txts[sI].classList.remove('active'); sI=(sI+1)%txts.length; txts[sI].classList.add('active');
-        }, 4000);
-
-    </script>
-</body>
-</html><!DOCTYPE html>
-<html lang="ar" dir="rtl">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>TIMENET APP</title>
-    
-    <!-- مكتبة التشفير -->
-    <script src="md5.js"></script>
-
-    <style>
-        :root {
-            --primary: #00f260;
-            --secondary: #0575e6;
-            --accent: #f80759;
-            --bg-deep: #050505;
-            --glass-bg: rgba(255, 255, 255, 0.08);
-            --glass-nav: rgba(15, 12, 41, 0.85);
-            --border: rgba(255, 255, 255, 0.15);
-            --text: #ffffff;
-            --text-dim: #9ca3af;
-            --nav-height: 70px;
-        }
-
-        @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;800&display=swap');
-
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: 'Cairo', sans-serif;
-            -webkit-tap-highlight-color: transparent;
-        }
-
-        body {
-            background-color: var(--bg-deep);
-            color: var(--text);
-            height: 100vh;
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-            position: relative;
-        }
-
-        /* خلفية النجوم */
-        #cosmic-canvas {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            z-index: 0; background: linear-gradient(to bottom, #0f0c29, #302b63, #24243e);
-        }
-
-        /* الحاوية الرئيسية */
-        .app-container {
-            position: relative; z-index: 10;
-            width: 100%; max-width: 500px;
-            margin: 0 auto;
-            height: 100%;
-            display: flex; flex-direction: column;
-        }
-
-        /* الهيدر */
-        header {
-            text-align: center; padding: 20px 0 10px;
-            flex-shrink: 0;
-        }
-        .logo { font-size: 1.8rem; font-weight: 900; letter-spacing: 2px; text-shadow: 0 0 15px rgba(5, 117, 230, 0.8); }
-        .logo span { color: var(--primary); }
-
-        /* منطقة المحتوى المتغير (Pages) */
-        .content-area {
-            flex: 1;
-            overflow-y: auto;
-            padding: 10px 20px 100px; /* مسافة سفلية عشان الناف بار */
-            position: relative;
-            scrollbar-width: none;
-        }
-        .content-area::-webkit-scrollbar { display: none; }
-
-        /* إخفاء وإظهار التبويبات */
-        .tab-page {
-            display: none;
-            animation: fadeIn 0.4s ease;
-        }
-        .tab-page.active { display: block; }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        /* === Styles for TAB 1: HOME (LOGIN) === */
-        .glass-card {
-            background: var(--glass-bg);
-            backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px);
-            border: 1px solid var(--border); border-radius: 25px;
-            padding: 25px 20px; text-align: center;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-            margin-top: 10px;
-        }
-
-        .neon-input {
-            width: 100%; padding: 15px;
-            background: rgba(0,0,0,0.3); border: 1px solid var(--border);
-            border-radius: 15px; color: #fff; font-size: 1.1rem;
-            text-align: center; margin-bottom: 20px; transition: 0.3s;
-        }
-        .neon-input:focus { border-color: var(--primary); background: rgba(0,0,0,0.5); outline: none; }
-
-        .btn-main {
-            width: 100%; padding: 15px; border-radius: 50px; border: none;
-            background: linear-gradient(90deg, var(--secondary), #00c6ff);
-            color: #fff; font-weight: 800; font-size: 1rem; cursor: pointer;
-            box-shadow: 0 5px 15px rgba(5, 117, 230, 0.3);
-        }
-
-        /* السلايدر المصغر */
-        .mini-slider { height: 30px; overflow: hidden; position: relative; margin-top: 15px; }
-        .slide-txt { position: absolute; width: 100%; top: 100%; opacity: 0; transition: 0.5s; font-size: 0.8rem; color: var(--text-dim); }
-        .slide-txt.active { top: 0; opacity: 1; }
-
-        /* بانر الترفيه في الرئيسية */
-        .ent-banner {
-            margin-top: 20px; background: rgba(255,255,255,0.05);
-            border: 1px solid var(--border); border-radius: 18px; padding: 15px;
-            display: flex; align-items: center; gap: 15px; text-decoration: none;
-        }
-        .ent-icon { font-size: 1.5rem; animation: pulse 2s infinite; }
-        .ent-info h4 { font-size: 0.9rem; color: #fff; margin-bottom: 2px; }
-        .ent-info p { font-size: 0.7rem; color: var(--text-dim); }
-
-        /* === Styles for TAB 2: PLANS === */
-        .plans-grid { display: grid; grid-template-columns: 1fr; gap: 15px; }
-        .plan-item {
-            display: flex; align-items: center; justify-content: space-between;
-            background: rgba(255,255,255,0.05); border: 1px solid var(--border);
-            border-radius: 20px; padding: 15px 20px; cursor: pointer; transition: 0.2s;
-        }
-        .plan-item:active { transform: scale(0.98); background: rgba(0, 242, 96, 0.1); border-color: var(--primary); }
-        .plan-left { display: flex; align-items: center; gap: 15px; }
-        .p-badge { width: 40px; height: 40px; background: rgba(255,255,255,0.1); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; }
-        .p-det h4 { font-size: 1.1rem; font-weight: bold; }
-        .p-det span { font-size: 0.8rem; color: var(--text-dim); }
-        .p-price { font-size: 1.2rem; font-weight: 900; color: var(--primary); }
-
-        /* === Styles for TAB 3: HELP & LOCATIONS & CONTACT === */
-        .info-card {
-            background: rgba(255,255,255,0.05); border-radius: 20px; padding: 20px; margin-bottom: 15px;
-        }
-        .info-title { color: var(--primary); font-weight: bold; margin-bottom: 10px; display: flex; align-items: center; gap: 10px; }
-        .info-text { font-size: 0.9rem; color: #ddd; line-height: 1.6; }
-        .step-row { display: flex; gap: 15px; margin-bottom: 15px; align-items: flex-start; }
-        .step-num { background: var(--secondary); width: 25px; height: 25px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; font-weight: bold; flex-shrink: 0; }
-        
-        .contact-btn {
-            display: block; width: 100%; padding: 12px; text-align: center;
-            background: rgba(255,255,255,0.1); border-radius: 12px; margin-bottom: 10px;
-            text-decoration: none; color: white; font-weight: bold; border: 1px solid var(--border);
-        }
-        .contact-btn.wa { background: #25D366; border-color: #25D366; color: #fff; }
-
-        /* === BOTTOM NAVIGATION === */
-        .bottom-nav {
-            position: fixed; bottom: 0; left: 0; width: 100%;
-            height: var(--nav-height);
-            background: var(--glass-nav);
-            backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
-            border-top: 1px solid var(--border);
-            display: flex; justify-content: space-around; align-items: center;
-            z-index: 100;
-            padding-bottom: 5px; /* رفع بسيط للأيقونات */
-        }
-
-        .nav-item {
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-            color: var(--text-dim); text-decoration: none;
-            width: 20%; height: 100%; position: relative;
-            transition: 0.3s;
-        }
-
-        .nav-item svg { width: 24px; height: 24px; fill: currentColor; margin-bottom: 4px; transition: 0.3s; }
-        .nav-item span { font-size: 0.7rem; font-weight: 600; }
-
-        /* Active State */
-        .nav-item.active { color: var(--primary); }
-        .nav-item.active svg { transform: translateY(-5px); filter: drop-shadow(0 0 8px var(--primary)); }
-        
-        /* Main Home Button (Center) */
-        .nav-item.main-home { 
-            position: relative; top: -20px; 
-        }
-        .nav-item.main-home .circle {
-            width: 55px; height: 55px;
-            background: linear-gradient(135deg, var(--secondary), #00c6ff);
-            border-radius: 50%;
-            display: flex; align-items: center; justify-content: center;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.5);
-            border: 4px solid var(--bg-deep); /* يدمج مع الخلفية */
-            color: #fff;
-        }
-        .nav-item.main-home.active .circle {
-            background: linear-gradient(135deg, var(--primary), #00b09b);
-            box-shadow: 0 0 20px rgba(0, 242, 96, 0.4);
-        }
-
-        /* Toast */
-        #toast {
-            position: fixed; top: 20px; left: 50%; transform: translateX(-50%) translateY(-100px);
-            background: var(--accent); color: white; padding: 10px 25px; border-radius: 50px;
-            z-index: 2000; transition: 0.4s; font-weight: bold;
-        }
-        #toast.show { transform: translateX(-50%) translateY(0); }
-
-        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.1); } 100% { transform: scale(1); } }
-
-    </style>
-</head>
-<body>
-
-    <canvas id="cosmic-canvas"></canvas>
-    <div id="toast">⚠️ <span id="toast-msg"></span></div>
-
-    <div class="app-container">
-        <header>
-            <div class="logo">TIME<span>NET</span></div>
-        </header>
-
-        <div class="content-area">
-            
-            <!-- 1. تبويب الرئيسية (تسجيل الدخول) -->
-            <section id="page-home" class="tab-page active">
-                <div class="glass-card">
-                    $(if username)
-                    <div style="padding: 20px 0;">
-                        <h2 style="margin-bottom: 10px;">أهلاً $(username)</h2>
-                        <div style="font-size: 0.9rem; color: var(--text-dim); margin-bottom: 20px;">حالة اتصالك الآن</div>
-                        
-                        <div style="display:flex; justify-content:space-between; padding:10px; border-bottom:1px solid rgba(255,255,255,0.1);">
-                            <span>الوقت</span> <span style="color:var(--primary)">$(uptime)</span>
-                        </div>
-                        <div style="display:flex; justify-content:space-between; padding:10px; border-bottom:1px solid rgba(255,255,255,0.1);">
-                            <span>التحميل</span> <span style="color:var(--primary)">$(bytes-out-nice)</span>
-                        </div>
-
-                        <form action="$(link-logout)" name="logout" style="margin-top: 25px;">
-                            <input type="hidden" name="erase-cookie" value="on">
-                            <button type="submit" class="btn-main" style="background: var(--accent);">تسجيل خروج</button>
-                        </form>
-                    </div>
-                    $(else)
-                    <h3 style="margin-bottom: 20px;">تسجيل الدخول</h3>
-                    <form name="login" action="$(link-login-only)" method="post" onsubmit="return tryLogin()">
-                        <input type="hidden" name="dst" value="$(link-orig)">
-                        <input type="hidden" name="popup" value="true">
-                        <input type="hidden" name="password">
-
-                        <input type="text" name="username" id="code-input" class="neon-input" placeholder="أدخل كود الكرت هنا" autocomplete="off" required>
-                        <button type="submit" class="btn-main" id="login-btn">اتصال</button>
-                    </form>
-                    <div class="mini-slider">
-                        <div class="slide-txt active">🚀 أسرع انترنت في المنطقة</div>
-                        <div class="slide-txt">💎 باقات تناسب جميع الاحتياجات</div>
-                        <div class="slide-txt">🎮 بينج منخفض للألعاب</div>
-                    </div>
-                    $(endif)
-                </div>
-
-                <!-- بانر الترفيه في الرئيسية -->
-                <a href="http://10.10.10.10" class="ent-banner">
-                    <div class="ent-icon">🎬</div>
-                    <div class="ent-info">
-                        <h4>مركز الترفيه</h4>
-                        <p>شاهد الأفلام والمباريات مجاناً بدون نت</p>
-                    </div>
-                    <div style="margin-right:auto; color:var(--primary);">➔</div>
-                </a>
-            </section>
-
-            <!-- 2. تبويب الباقات (الكروت) -->
-            <section id="page-plans" class="tab-page">
-                <h3 style="margin-bottom: 15px; text-align: center;">قائمة الباقات المتوفرة</h3>
-                <div class="plans-grid" id="plans-container">
-                    <!-- JS Generated -->
-                </div>
-            </section>
-
-            <!-- 3. تبويب التعليمات -->
-            <section id="page-help" class="tab-page">
-                <h3 style="margin-bottom: 15px; text-align: center;">تعليمات الاستخدام</h3>
-                <div class="info-card">
-                    <div class="info-title">💡 كيف أتصل بالشبكة؟</div>
-                    <div class="step-row">
-                        <div class="step-num">1</div>
-                        <div class="info-text">تأكد من الاتصال بشبكة الواي فاي TIMENET وظهور صفحة الدخول.</div>
-                    </div>
-                    <div class="step-row">
-                        <div class="step-num">2</div>
-                        <div class="info-text">قم بشراء كرت من أحد نقاط البيع المعتمدة.</div>
-                    </div>
-                    <div class="step-row">
-                        <div class="step-num">3</div>
-                        <div class="info-text">اذهب للرئيسية، أدخل الكود في المربع واضغط "اتصال".</div>
-                    </div>
-                </div>
-                <div class="info-card">
-                    <div class="info-title">🔒 الحفاظ على الرصيد</div>
-                    <div class="info-text">قم بتسجيل الخروج عند الانتهاء من التصفح، أو أطفئ الواي فاي في جهازك.</div>
-                </div>
-            </section>
-
-            <!-- 4. تبويب نقاط البيع -->
-            <section id="page-loc" class="tab-page">
-                <h3 style="margin-bottom: 15px; text-align: center;">مواقع التوزيع</h3>
-                <div class="info-card">
-                    <div class="info-title">📍 البقالات والسوبرماركت</div>
-                    <ul style="list-style: none; padding-right: 10px; color: #ddd; font-size: 0.9rem; line-height: 2;">
-                        <li>• سوبر ماركت الخير - الشارع العام</li>
-                        <li>• بقالة الأمانة - جوار المسجد</li>
-                        <li>• مركز التوفير - الحارة الشرقية</li>
-                    </ul>
-                </div>
-                <div class="info-card">
-                    <div class="info-title">📱 محلات الجوالات</div>
-                    <ul style="list-style: none; padding-right: 10px; color: #ddd; font-size: 0.9rem; line-height: 2;">
-                        <li>• عالم التقنية - السوق المركزي</li>
-                        <li>• توب فون - تقاطع الجامعة</li>
-                    </ul>
-                </div>
-            </section>
-
-            <!-- 5. تبويب تواصل معنا -->
-            <section id="page-contact" class="tab-page">
-                <h3 style="margin-bottom: 15px; text-align: center;">تواصل معنا</h3>
-                <div class="info-card" style="text-align: center;">
-                    <p style="margin-bottom: 15px; color: var(--text-dim);">نسعد بخدمتكم على مدار 24 ساعة</p>
-                    <a href="tel:777019176" class="contact-btn">📞 اتصل بنا: 777019176</a>
-                    <a href="https://wa.me/967777019176" class="contact-btn wa">💬 واتساب مباشر</a>
-                    <div style="margin-top: 20px; font-size: 0.8rem; color: #555;">
-                        TIMENET &copy; 2026
-                    </div>
-                </div>
-            </section>
-
-        </div>
-
-        <!-- الشريط السفلي -->
-        <nav class="bottom-nav">
-            <div class="nav-item" onclick="switchTab('page-contact', this)">
-                <svg viewBox="0 0 24 24"><path d="M20 15.5c-1.25 0-2.45-.2-3.57-.57-.35-.11-.74-.03-1.02.24l-2.2 2.2c-2.83-1.44-5.15-3.75-6.59-6.59l2.2-2.21c.28-.26.36-.65.25-1C8.7 6.45 8.5 5.25 8.5 4c0-.55-.45-1-1-1H4c-.55 0-1 .45-1 1 0 9.39 7.61 17 17 17 .55 0 1-.45 1-1v-3.5c0-.55-.45-1-1-1zM19 12h2a9 9 0 0 0-9-9v2c3.87 0 7 3.13 7 7zm-4 0h2c0-2.76-2.24-5-5-5v2c1.66 0 3 1.34 3 3z"/></svg>
-                <span>تواصل</span>
-            </div>
-            
-            <div class="nav-item" onclick="switchTab('page-loc', this)">
-                <svg viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
-                <span>المواقع</span>
-            </div>
-
-            <!-- الزر الرئيسي في الوسط -->
-            <div class="nav-item main-home active" onclick="switchTab('page-home', this)">
-                <div class="circle">
-                    <svg viewBox="0 0 24 24" style="width:28px; height:28px; margin:0;"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
-                </div>
-            </div>
-
-            <div class="nav-item" onclick="switchTab('page-plans', this)">
-                <svg viewBox="0 0 24 24"><path d="M20 4H4c-1.11 0-1.99.89-1.99 2L2 18c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V6c0-1.11-.89-2-2-2zm-5 14H4v-4h11v4zm0-5H4V9h11v4zm5 5h-4V9h4v9z"/></svg>
-                <span>الكروت</span>
-            </div>
-
-            <div class="nav-item" onclick="switchTab('page-help', this)">
-                <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17h-2v-2h2v2zm2.07-7.75l-.9.92C13.45 12.9 13 13.5 13 15h-2v-.5c0-1.1.45-2.1 1.17-2.83l1.24-1.26c.37-.36.59-.86.59-1.41 0-1.1-.9-2-2-2s-2 .9-2 2H8c0-2.21 1.79-4 4-4s4 1.79 4 4c0 .88-.36 1.68-.93 2.25z"/></svg>
-                <span>تعليمات</span>
-            </div>
-        </nav>
-
-    </div>
-
-    <!-- ميكروتك فورم مخفي -->
-    <form name="sendin" action="$(link-login-only)" method="post" style="display:none">
-        <input type="hidden" name="username" />
-        <input type="hidden" name="password" />
-        <input type="hidden" name="dst" value="$(link-orig)" />
-        <input type="hidden" name="popup" value="true" />
-    </form>
-
-    <script>
-        // --- 1. Background Animation ---
-        const canvas = document.getElementById('cosmic-canvas');
-        const ctx = canvas.getContext('2d');
-        let w, h, stars = [];
-        
-        function initC() { w = canvas.width = window.innerWidth; h = canvas.height = window.innerHeight; stars=[]; for(let i=0;i<50;i++) stars.push({x:Math.random()*w, y:Math.random()*h, r:Math.random()*2, s:Math.random()*0.5+0.1}); }
-        function animC() {
-            ctx.clearRect(0,0,w,h);
-            var g=ctx.createLinearGradient(0,0,0,h); g.addColorStop(0,'#0f0c29'); g.addColorStop(1,'#24243e'); ctx.fillStyle=g; ctx.fillRect(0,0,w,h);
-            ctx.fillStyle='#fff';
-            stars.forEach(s=>{ ctx.beginPath(); ctx.arc(s.x,s.y,s.r,0,6.28); ctx.fill(); s.y-=s.s; if(s.y<0) s.y=h; });
-            requestAnimationFrame(animC);
-        }
-        window.onresize=initC; initC(); animC();
-
-        // --- 2. Tab Logic ---
-        function switchTab(pageId, navEl) {
-            // Hide all pages
-            document.querySelectorAll('.tab-page').forEach(p => p.classList.remove('active'));
-            // Show selected page
-            document.getElementById(pageId).classList.add('active');
-            
-            // Update Nav Icons
-            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-            if(navEl) navEl.classList.add('active');
-        }
-
-        // --- 3. Plans Data ---
-        const plans = [
-            { p: 100, t: "3 ساعات", mb: "300 MB", i: "🥉" },
-            { p: 200, t: "7 ساعات", mb: "700 MB", i: "🥈" },
-            { p: 500, t: "20 ساعة", mb: "2 GB", i: "🥇" },
-            { p: 1000, t: "50 ساعة", mb: "4 GB", i: "💠" },
-            { p: 3000, t: "شهر كامل", mb: "مفتوح", i: "👑" }
-        ];
-
-        function renderPlans() {
-            const c = document.getElementById('plans-container');
-            c.innerHTML = plans.map(p => `
-                <div class="plan-item" onclick="fillCode('${p.p}')">
-                    <div class="plan-left">
-                        <div class="p-badge">${p.i}</div>
-                        <div class="p-det">
-                            <h4>${p.t}</h4>
-                            <span>${p.mb}</span>
-                        </div>
-                    </div>
-                    <div class="p-price">${p.p} <small style="font-size:0.8rem; color:#aaa;">ر.ي</small></div>
-                </div>
-            `).join('');
-        }
-
-        function fillCode(val) {
-            // Switch to Home tab
-            switchTab('page-home', document.querySelector('.main-home'));
-            
-            setTimeout(() => {
-                const inp = document.getElementById('code-input');
-                if(inp) {
-                    inp.value = ""; 
-                    inp.focus();
-                    showToast("تم اختيار فئة " + val + " - أدخل الكود");
-                }
-            }, 300);
-        }
-
-        // --- 4. Login Logic ---
-        function tryLogin() {
-            const u = document.login.username.value.trim();
-            if(!u) { showToast("الرجاء إدخال الكود"); return false; }
-            document.getElementById('login-btn').innerText = "...";
-            if ("$(chap-id)" !== "") {
-                document.sendin.username.value = u;
-                document.sendin.password.value = hexMD5("$(chap-id)" + u + "$(chap-challenge)");
-                document.sendin.submit();
-                return false;
+        (function() {
+            let sI = 0; 
+            const txts = document.querySelectorAll('.slide-txt');
+            if(txts.length > 0) {
+                setInterval(()=>{
+                    txts[sI].classList.remove('active'); 
+                    sI=(sI+1)%txts.length; 
+                    txts[sI].classList.add('active');
+                }, 4000);
             }
-            document.login.password.value = u;
-            return true;
-        }
-
-        function showToast(m) {
-            const t = document.getElementById('toast');
-            document.getElementById('toast-msg').innerText = m;
-            t.classList.add('show');
-            setTimeout(() => t.classList.remove('show'), 3000);
-        }
-
-        // --- Init ---
-        window.onload = () => {
-            renderPlans();
-            const err = "$(error)";
-            if(err && err !== "$(error)") showToast(err);
-            if(document.getElementById('code-input')) document.getElementById('code-input').focus();
-        };
-
-        // Mini Slider
-        let sI = 0; const txts = document.querySelectorAll('.slide-txt');
-        setInterval(()=>{
-            txts[sI].classList.remove('active'); sI=(sI+1)%txts.length; txts[sI].classList.add('active');
-        }, 4000);
+        })();
 
     </script>
 </body>
 </html>
-
