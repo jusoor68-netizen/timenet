@@ -10,18 +10,31 @@
 
     <style>
         :root {
-            /* القيم الافتراضية: النمط الملكي الذهبي */
-            --primary: #ffd700;       /* ذهبي */
-            --secondary: #b8860b;     /* ذهبي غامق */
-            --accent: #ff0000;        /* أحمر للتميز */
+            /* المتغيرات الأساسية (سيتم تحديثها عبر JS) */
+            --primary: #ffd700;       
+            --secondary: #b8860b;     
+            --accent: #ff0000;        
             
-            --bg-deep: #000000;       /* أسود ملكي */
+            /* الوضع الليلي الافتراضي */
+            --bg-deep: #000000;       
             --glass-bg: rgba(20, 20, 20, 0.6);
             --glass-nav: rgba(0, 0, 0, 0.9);
-            --border: rgba(255, 215, 0, 0.2); /* حدود ذهبية خفيفة */
+            --border: rgba(255, 215, 0, 0.2);
             --text: #ffffff;
             --text-dim: #cfcfcf;
+            --card-shadow: 0 10px 30px rgba(0,0,0,0.5);
             --nav-height: 70px;
+        }
+
+        /* فئة الوضع النهاري */
+        body.light-mode {
+            --bg-deep: #f0f2f5;
+            --glass-bg: rgba(255, 255, 255, 0.85);
+            --glass-nav: rgba(255, 255, 255, 0.95);
+            --border: rgba(0, 0, 0, 0.1);
+            --text: #1f2937;
+            --text-dim: #4b5563;
+            --card-shadow: 0 10px 30px rgba(0,0,0,0.05);
         }
 
         @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;800&display=swap');
@@ -35,20 +48,26 @@
         }
 
         body {
-            background-color: transparent;
+            background-color: var(--bg-deep);
             color: var(--text);
             height: 100vh;
             display: flex;
             flex-direction: column;
             overflow: hidden;
             position: relative;
+            transition: background-color 0.4s, color 0.4s;
         }
 
-        /* خلفية النجوم (Canvas) */
+        /* خلفية النجوم (تظهر فقط في الوضع الليلي) */
         #cosmic-canvas {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             z-index: -1; 
             background: linear-gradient(to bottom, #000000, #1a1a1a);
+            transition: opacity 0.5s;
+        }
+        
+        body.light-mode #cosmic-canvas {
+            opacity: 0; /* إخفاء النجوم في النهار */
         }
 
         /* الحاوية الرئيسية */
@@ -67,14 +86,14 @@
         }
         
         .menu-btn {
-            font-size: 1.6rem; cursor: pointer; background: rgba(0,0,0,0.3);
+            font-size: 1.6rem; cursor: pointer; background: rgba(0,0,0,0.05);
             width: 45px; height: 45px; display: flex; align-items: center; justify-content: center;
             border-radius: 12px; border: 1px solid var(--border); transition: 0.3s;
             color: var(--primary);
         }
-        .menu-btn:hover { background: var(--primary); color: #000; }
+        .menu-btn:hover { background: var(--primary); color: #fff; }
 
-        .logo { font-size: 1.8rem; font-weight: 900; letter-spacing: 2px; text-shadow: 0 0 10px rgba(255, 215, 0, 0.5); }
+        .logo { font-size: 1.8rem; font-weight: 900; letter-spacing: 2px; text-shadow: 0 0 10px rgba(255, 215, 0, 0.2); }
         .logo span { color: var(--primary); transition: color 0.5s; }
 
         /* منطقة المحتوى */
@@ -92,14 +111,15 @@
         .glass-card {
             background: var(--glass-bg); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
             border: 1px solid var(--border); border-radius: 25px; padding: 25px 20px;
-            text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.5); margin-top: 10px;
+            text-align: center; box-shadow: var(--card-shadow); margin-top: 10px;
+            transition: 0.4s;
         }
 
-        /* السلايدر الإعلاني الجديد (صور/أيقونات) */
+        /* السلايدر الإعلاني */
         .ad-carousel-container {
             width: 100%; margin-bottom: 25px; position: relative;
             border-radius: 20px; overflow: hidden; border: 1px solid var(--border);
-            box-shadow: 0 5px 20px rgba(0,0,0,0.5); height: 140px;
+            box-shadow: var(--card-shadow); height: 140px;
             background: rgba(0,0,0,0.3);
         }
 
@@ -113,10 +133,10 @@
 
         .ad-card {
             min-width: 100%; height: 100%;
-            background: linear-gradient(135deg, #1a1a1a, #000);
+            background: linear-gradient(135deg, #1a1a1a, #000); /* يبقى داكن دائماً للتباين */
             display: flex; align-items: center; justify-content: flex-start;
             padding: 0 25px; box-sizing: border-box; scroll-snap-align: center;
-            position: relative;
+            position: relative; color: #fff;
         }
 
         .ad-icon {
@@ -136,59 +156,66 @@
         .dot.active { background: var(--primary); width: 25px; border-radius: 10px; }
 
         .neon-input {
-            width: 100%; padding: 15px; background: rgba(0,0,0,0.5);
+            width: 100%; padding: 15px; 
+            background: rgba(0,0,0,0.05); /* شفافية داكنة */
             border: 1px solid var(--border); border-radius: 15px;
             color: var(--primary); font-size: 1.2rem; font-weight: bold;
             text-align: center; margin-bottom: 20px; transition: 0.3s; letter-spacing: 2px;
         }
+        /* تعديل خاص للوضع النهاري لحقل الإدخال */
+        body.light-mode .neon-input { background: #fff; box-shadow: inset 0 2px 5px rgba(0,0,0,0.05); }
+
         .neon-input:focus { border-color: var(--primary); box-shadow: 0 0 15px rgba(255, 215, 0, 0.2); outline: none; }
-        .neon-input::placeholder { color: #666; font-weight: normal; letter-spacing: 0; }
+        .neon-input::placeholder { color: var(--text-dim); font-weight: normal; letter-spacing: 0; }
 
         .btn-main {
             width: 100%; padding: 15px; border-radius: 50px; border: none;
             background: linear-gradient(135deg, var(--secondary), var(--primary));
-            color: #000; font-weight: 900; font-size: 1.1rem; cursor: pointer;
-            box-shadow: 0 5px 20px rgba(255, 215, 0, 0.2); transition: 0.3s;
+            color: #fff; font-weight: 900; font-size: 1.1rem; cursor: pointer;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1); transition: 0.3s;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.3);
         }
         .btn-main:active { transform: scale(0.98); }
 
         /* بانر الترفيه */
         .ent-banner {
-            margin-top: 25px; background: rgba(0,0,0,0.6);
+            margin-top: 25px; background: var(--glass-bg);
             border: 1px solid var(--border); border-radius: 18px; padding: 15px;
             display: flex; align-items: center; gap: 15px; text-decoration: none;
             transition: 0.3s; position: relative; overflow: hidden;
+            box-shadow: var(--card-shadow);
         }
         .ent-banner::before { content: ''; position: absolute; top: 0; left: 0; width: 4px; height: 100%; background: var(--primary); }
-        .ent-banner:active { transform: scale(0.98); background: rgba(255,255,255,0.05); }
+        .ent-banner:active { transform: scale(0.98); opacity: 0.9; }
         .ent-icon { font-size: 1.8rem; animation: pulse 2s infinite; }
         .ent-info h4 { font-size: 1rem; color: var(--primary); margin-bottom: 2px; font-weight: bold; }
-        .ent-info p { font-size: 0.75rem; color: #fff; }
+        .ent-info p { font-size: 0.75rem; color: var(--text-dim); }
 
         /* === Styles for OTHER TABS === */
         .plans-grid { display: grid; grid-template-columns: 1fr; gap: 15px; }
         .plan-item {
             display: flex; align-items: center; justify-content: space-between;
-            background: rgba(0,0,0,0.6); border: 1px solid var(--border);
+            background: var(--glass-bg); border: 1px solid var(--border);
             border-radius: 20px; padding: 15px 20px; cursor: pointer; transition: 0.2s;
+            box-shadow: var(--card-shadow);
         }
-        .plan-item:active { transform: scale(0.98); border-color: var(--primary); box-shadow: 0 0 10px rgba(255, 215, 0, 0.2); }
+        .plan-item:active { transform: scale(0.98); border-color: var(--primary); }
         .plan-left { display: flex; align-items: center; gap: 15px; }
-        .p-badge { width: 45px; height: 45px; background: rgba(255,215,0,0.1); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.4rem; color: var(--primary); border: 1px solid rgba(255,215,0,0.1); }
-        .p-det h4 { font-size: 1.1rem; font-weight: bold; color: #fff; }
+        .p-badge { width: 45px; height: 45px; background: rgba(128,128,128,0.1); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.4rem; color: var(--primary); border: 1px solid var(--border); }
+        .p-det h4 { font-size: 1.1rem; font-weight: bold; color: var(--text); }
         .p-det span { font-size: 0.85rem; color: var(--primary); }
-        .p-price { font-size: 1.3rem; font-weight: 900; color: #fff; text-shadow: 0 0 5px rgba(0,0,0,0.5); }
+        .p-price { font-size: 1.3rem; font-weight: 900; color: var(--text); }
 
-        .info-card { background: rgba(0,0,0,0.6); border: 1px solid var(--border); border-radius: 20px; padding: 20px; margin-bottom: 15px; }
-        .info-title { color: var(--primary); font-weight: bold; margin-bottom: 10px; display: flex; align-items: center; gap: 10px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 10px; }
-        .info-text { font-size: 0.9rem; color: #ddd; line-height: 1.6; }
+        .info-card { background: var(--glass-bg); border: 1px solid var(--border); border-radius: 20px; padding: 20px; margin-bottom: 15px; box-shadow: var(--card-shadow); }
+        .info-title { color: var(--primary); font-weight: bold; margin-bottom: 10px; display: flex; align-items: center; gap: 10px; border-bottom: 1px solid var(--border); padding-bottom: 10px; }
+        .info-text { font-size: 0.9rem; color: var(--text-dim); line-height: 1.6; }
         
         .contact-btn {
             display: block; width: 100%; padding: 14px; text-align: center;
-            background: rgba(255,255,255,0.05); border-radius: 12px; margin-bottom: 10px;
-            text-decoration: none; color: white; font-weight: bold; border: 1px solid var(--border); transition: 0.3s;
+            background: rgba(128,128,128,0.1); border-radius: 12px; margin-bottom: 10px;
+            text-decoration: none; color: var(--text); font-weight: bold; border: 1px solid var(--border); transition: 0.3s;
         }
-        .contact-btn:hover { background: var(--primary); color: #000; }
+        .contact-btn:hover { background: var(--primary); color: #fff; }
         .contact-btn.wa { border-color: #25D366; color: #25D366; }
         .contact-btn.wa:hover { background: #25D366; color: #fff; }
 
@@ -197,11 +224,11 @@
             position: fixed; bottom: 0; left: 0; width: 100%; height: var(--nav-height);
             background: var(--glass-nav); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
             border-top: 1px solid var(--border); display: flex; justify-content: space-around; align-items: center;
-            z-index: 100; padding-bottom: 5px;
+            z-index: 100; padding-bottom: 5px; transition: 0.4s;
         }
         .nav-item {
             display: flex; flex-direction: column; align-items: center; justify-content: center;
-            color: #666; text-decoration: none; width: 20%; height: 100%; position: relative; transition: 0.3s;
+            color: var(--text-dim); text-decoration: none; width: 20%; height: 100%; position: relative; transition: 0.3s;
         }
         .nav-item svg { width: 24px; height: 24px; fill: currentColor; margin-bottom: 4px; transition: 0.3s; }
         .nav-item span { font-size: 0.7rem; font-weight: 600; }
@@ -213,18 +240,22 @@
         .nav-item.main-home .circle {
             width: 60px; height: 60px; background: linear-gradient(135deg, var(--secondary), var(--primary));
             border-radius: 50%; display: flex; align-items: center; justify-content: center;
-            box-shadow: 0 0 15px rgba(255, 215, 0, 0.3); border: 4px solid #000; color: #000; transition: 0.5s;
+            box-shadow: 0 0 15px rgba(0,0,0,0.2); border: 4px solid var(--bg-deep); /* يتكيف مع الخلفية */
+            color: #fff; transition: 0.5s;
         }
         .nav-item.main-home.active .circle { box-shadow: 0 0 25px var(--primary); transform: scale(1.1); }
 
         /* === Side Menu === */
         .side-menu {
             position: fixed; top: 0; right: -100%; width: 85%; max-width: 320px; height: 100%;
-            background: rgba(10, 10, 10, 0.98); backdrop-filter: blur(10px);
+            /* خلفية القائمة تتغير حسب الوضع */
+            background: rgba(15, 15, 20, 0.98); 
+            backdrop-filter: blur(10px);
             z-index: 1100; transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1);
             border-left: 1px solid var(--border); padding: 25px;
-            box-shadow: -10px 0 40px rgba(0,0,0,0.8); display: flex; flex-direction: column; overflow-y: auto;
+            box-shadow: -10px 0 40px rgba(0,0,0,0.5); display: flex; flex-direction: column; overflow-y: auto;
         }
+        body.light-mode .side-menu { background: rgba(255, 255, 255, 0.98); color: #333; }
         .side-menu.open { right: 0; }
         
         .menu-overlay {
@@ -235,39 +266,39 @@
 
         .menu-header {
             display: flex; justify-content: space-between; align-items: center;
-            margin-bottom: 25px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 15px; color: var(--primary);
+            margin-bottom: 25px; border-bottom: 1px solid var(--border); padding-bottom: 15px; color: var(--primary);
         }
-        .menu-section { margin-bottom: 25px; background: rgba(255,255,255,0.03); padding: 15px; border-radius: 15px; border: 1px solid rgba(255,255,255,0.05); }
-        .menu-label { font-size: 0.85rem; color: #fff; margin-bottom: 12px; display: block; font-weight: bold; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 8px; }
+        .menu-section { margin-bottom: 25px; background: rgba(128,128,128,0.05); padding: 15px; border-radius: 15px; border: 1px solid var(--border); }
+        .menu-label { font-size: 0.85rem; color: var(--text-dim); margin-bottom: 12px; display: block; font-weight: bold; border-bottom: 1px solid var(--border); padding-bottom: 8px; }
 
         /* خيارات السرعة */
         .speed-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
         .speed-opt {
-            background: rgba(0,0,0,0.3); border: 1px solid var(--border); padding: 10px;
+            background: rgba(128,128,128,0.1); border: 1px solid var(--border); padding: 10px;
             border-radius: 10px; text-align: center; cursor: pointer; transition: 0.2s;
-            font-size: 0.8rem; color: var(--text-dim);
+            font-size: 0.8rem; color: var(--text);
         }
-        .speed-opt.active { background: var(--primary); color: #000; font-weight: bold; border-color: var(--primary); }
+        .speed-opt.active { background: var(--primary); color: #fff; font-weight: bold; border-color: var(--primary); }
 
         /* صف الخيارات */
-        .setting-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; color: #ddd; font-size: 0.9rem; }
+        .setting-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; color: var(--text); font-size: 0.9rem; }
         .setting-row:last-child { margin-bottom: 0; }
         
         /* زر التبديل */
         .switch { position: relative; display: inline-block; width: 40px; height: 20px; }
         .switch input { opacity: 0; width: 0; height: 0; }
-        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #333; transition: .4s; border-radius: 34px; }
+        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .4s; border-radius: 34px; }
         .slider:before { position: absolute; content: ""; height: 14px; width: 14px; left: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%; }
         input:checked + .slider { background-color: var(--primary); }
         input:checked + .slider:before { transform: translateX(20px); }
 
         /* زر الربط */
-        .bind-btn { background: rgba(255,255,255,0.1); border: 1px solid var(--border); color: var(--primary); padding: 5px 12px; border-radius: 15px; font-size: 0.75rem; cursor: pointer; }
+        .bind-btn { background: rgba(128,128,128,0.1); border: 1px solid var(--border); color: var(--primary); padding: 5px 12px; border-radius: 15px; font-size: 0.75rem; cursor: pointer; }
 
         /* الثيمات */
         .theme-grid { display: flex; gap: 10px; justify-content: flex-start; flex-wrap: wrap; }
-        .theme-circle { width: 35px; height: 35px; border-radius: 50%; cursor: pointer; border: 2px solid rgba(255,255,255,0.2); transition: 0.3s; }
-        .theme-circle:hover { transform: scale(1.1); border-color: #fff; }
+        .theme-circle { width: 35px; height: 35px; border-radius: 50%; cursor: pointer; border: 2px solid var(--border); transition: 0.3s; }
+        .theme-circle:hover { transform: scale(1.1); border-color: var(--text); }
 
         /* Toast */
         #toast {
@@ -294,7 +325,19 @@
     <div class="side-menu" id="side-menu">
         <div class="menu-header">
             <h3>خيارات VIP</h3>
-            <span onclick="toggleMenu()" style="cursor:pointer; font-size:1.5rem; color:#fff;">&times;</span>
+            <span onclick="toggleMenu()" style="cursor:pointer; font-size:1.5rem; color:var(--text);">&times;</span>
+        </div>
+
+        <!-- 0. الوضع الليلي/النهاري -->
+        <div class="menu-section">
+            <span class="menu-label">☀️ المظهر</span>
+            <div class="setting-row">
+                <span>الوضع النهاري (Light)</span>
+                <label class="switch">
+                    <input type="checkbox" id="mode-check" onchange="toggleDayMode(this.checked)">
+                    <span class="slider round"></span>
+                </label>
+            </div>
         </div>
 
         <!-- 1. إعدادات السرعة -->
@@ -324,30 +367,11 @@
             </div>
         </div>
 
-        <!-- 3. خيارات إضافية -->
-        <div class="menu-section">
-            <span class="menu-label">⚙️ خيارات إضافية</span>
-            <div class="setting-row">
-                <span>تنبيه عند انتهاء الرصيد</span>
-                <label class="switch">
-                    <input type="checkbox" checked>
-                    <span class="slider round"></span>
-                </label>
-            </div>
-            <div class="setting-row">
-                <span>وضع توفير البيانات</span>
-                <label class="switch">
-                    <input type="checkbox">
-                    <span class="slider round"></span>
-                </label>
-            </div>
-        </div>
-
         <!-- 4. الثيمات -->
         <div class="menu-section">
             <span class="menu-label">🎨 لون التطبيق</span>
             <div class="theme-grid">
-                <div class="theme-circle" style="background: linear-gradient(135deg, #ff8c00, #ffd700); border-color: #ffd700;" onclick="setTheme('gold')"></div>
+                <div class="theme-circle" style="background: linear-gradient(135deg, #ff8c00, #ffd700);" onclick="setTheme('gold')"></div>
                 <div class="theme-circle" style="background: linear-gradient(135deg, #0575e6, #00f260);" onclick="setTheme('green')"></div>
                 <div class="theme-circle" style="background: linear-gradient(135deg, #0072ff, #00c6ff);" onclick="setTheme('blue')"></div>
                 <div class="theme-circle" style="background: linear-gradient(135deg, #651fff, #d500f9);" onclick="setTheme('purple')"></div>
@@ -355,8 +379,8 @@
             </div>
         </div>
         
-        <div style="margin-top:auto; font-size:0.8rem; color:#666; text-align:center;">
-            TIMENET VIP V5.0
+        <div style="margin-top:auto; font-size:0.8rem; color:var(--text-dim); text-align:center;">
+            TIMENET VIP V5.2
         </div>
     </div>
 
@@ -375,12 +399,12 @@
                     $(if username)
                     <div style="padding: 20px 0;">
                         <h2 style="margin-bottom: 10px; color: var(--primary);">أهلاً $(username)</h2>
-                        <div style="font-size: 0.9rem; color: #ccc; margin-bottom: 20px;">حالة الاشتراك</div>
+                        <div style="font-size: 0.9rem; color: var(--text-dim); margin-bottom: 20px;">حالة الاشتراك</div>
                         
-                        <div style="display:flex; justify-content:space-between; padding:10px; border-bottom:1px solid rgba(255,255,255,0.1);">
+                        <div style="display:flex; justify-content:space-between; padding:10px; border-bottom:1px solid var(--border);">
                             <span>الوقت</span> <span style="color:var(--primary); font-weight:bold;">$(uptime)</span>
                         </div>
-                        <div style="display:flex; justify-content:space-between; padding:10px; border-bottom:1px solid rgba(255,255,255,0.1);">
+                        <div style="display:flex; justify-content:space-between; padding:10px; border-bottom:1px solid var(--border);">
                             <span>التحميل</span> <span style="color:var(--primary); font-weight:bold;">$(bytes-out-nice)</span>
                         </div>
 
@@ -427,7 +451,7 @@
                         </div>
                     </div>
 
-                    <h3 style="margin-bottom: 20px; color: #fff;">تسجيل الدخول</h3>
+                    <h3 style="margin-bottom: 20px; color: var(--text);">تسجيل الدخول</h3>
                     <form name="login" action="$(link-login-only)" method="post" onsubmit="return tryLogin()">
                         <input type="hidden" name="dst" value="$(link-orig)">
                         <input type="hidden" name="popup" value="true">
@@ -476,7 +500,7 @@
                 <h3 style="margin-bottom: 15px; text-align: center; color: var(--primary);">نقاط البيع المعتمدة</h3>
                 <div class="info-card">
                     <div class="info-title">📍 المنطقة الأولى</div>
-                    <ul style="list-style: none; padding: 0; color: #ccc;">
+                    <ul style="list-style: none; padding: 0; color: var(--text-dim);">
                         <li style="padding:5px 0;">• سوبر ماركت المدينة</li>
                         <li style="padding:5px 0;">• بقالة التوفيق</li>
                     </ul>
@@ -487,7 +511,7 @@
             <section id="page-contact" class="tab-page">
                 <h3 style="margin-bottom: 15px; text-align: center; color: var(--primary);">خدمة العملاء</h3>
                 <div class="info-card" style="text-align: center;">
-                    <p style="margin-bottom: 15px; color: #ccc;">نحن هنا لخدمتك 24/7</p>
+                    <p style="margin-bottom: 15px; color: var(--text-dim);">نحن هنا لخدمتك 24/7</p>
                     <a href="tel:777019176" class="contact-btn">📞 اتصال: 777019176</a>
                     <a href="https://wa.me/967777019176" class="contact-btn wa">💬 واتساب</a>
                 </div>
@@ -507,7 +531,7 @@
             </div>
             <div class="nav-item main-home active" onclick="switchTab('page-home', this)">
                 <div class="circle">
-                    <svg viewBox="0 0 24 24" style="width:28px; height:28px; margin:0; fill:#000;"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+                    <svg viewBox="0 0 24 24" style="width:28px; height:28px; margin:0; fill:#000; transition:fill 0.4s;"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
                 </div>
             </div>
             <div class="nav-item" onclick="switchTab('page-plans', this)">
@@ -574,23 +598,67 @@
             document.getElementById('menu-overlay').classList.toggle('open');
         }
 
-        // --- 3. Themes & Settings ---
+        // --- 3. Themes & Day/Night Logic ---
+        // تعريف ألوان كل ثيم للوضع الليلي (dark) والنهاري (light)
         const themes = {
-            gold:  { p: '#ffd700', s: '#b8860b', a: '#ff0000' },
-            green: { p: '#00f260', s: '#0575e6', a: '#f80759' },
-            blue:  { p: '#00c6ff', s: '#0072ff', a: '#00d2ff' },
-            purple:{ p: '#d500f9', s: '#651fff', a: '#aa00ff' },
-            red:   { p: '#ff4b2b', s: '#ff416c', a: '#ff9068' }
+            gold: { 
+                dark: { p: '#ffd700', s: '#b8860b', a: '#ff0000' },
+                light: { p: '#d4a000', s: '#b8860b', a: '#d32f2f' } 
+            },
+            green: { 
+                dark: { p: '#00f260', s: '#0575e6', a: '#f80759' },
+                light: { p: '#00a642', s: '#0056b3', a: '#c2185b' }
+            },
+            blue: { 
+                dark: { p: '#00c6ff', s: '#0072ff', a: '#00d2ff' },
+                light: { p: '#007bb5', s: '#004a99', a: '#0097a7' }
+            },
+            purple: { 
+                dark: { p: '#d500f9', s: '#651fff', a: '#aa00ff' },
+                light: { p: '#9c27b0', s: '#4a148c', a: '#7b1fa2' }
+            },
+            red: { 
+                dark: { p: '#ff4b2b', s: '#ff416c', a: '#ff9068' },
+                light: { p: '#d32f2f', s: '#c62828', a: '#bf360c' }
+            }
         };
 
+        // الثيم والوضع الحالي
+        let currentThemeName = 'gold';
+        let isLightMode = false;
+
         function setTheme(name) {
-            const t = themes[name];
-            const root = document.documentElement;
-            root.style.setProperty('--primary', t.p);
-            root.style.setProperty('--secondary', t.s);
-            root.style.setProperty('--accent', t.a);
+            currentThemeName = name;
+            applyTheme();
             localStorage.setItem('timenet_theme', name);
             showToast("تم تطبيق اللون " + name);
+        }
+
+        function toggleDayMode(checked) {
+            isLightMode = checked;
+            if(checked) {
+                document.body.classList.add('light-mode');
+            } else {
+                document.body.classList.remove('light-mode');
+            }
+            applyTheme(); // إعادة تطبيق الألوان لتناسب الوضع الجديد
+            localStorage.setItem('timenet_mode_light', checked);
+        }
+
+        function applyTheme() {
+            const mode = isLightMode ? 'light' : 'dark';
+            const colors = themes[currentThemeName][mode];
+            
+            const root = document.documentElement;
+            root.style.setProperty('--primary', colors.p);
+            root.style.setProperty('--secondary', colors.s);
+            root.style.setProperty('--accent', colors.a);
+            
+            // تعديل أيقونة الهوم في الوضع النهاري لتكون بيضاء
+            const homeIcon = document.querySelector('.nav-item.main-home .circle svg');
+            if(homeIcon) {
+                homeIcon.style.fill = isLightMode ? '#fff' : '#000';
+            }
         }
 
         function setSpeed(el, mode) {
@@ -638,7 +706,7 @@
                             <span>${p.mb}</span>
                         </div>
                     </div>
-                    <div class="p-price">${p.p} <small style="font-size:0.8rem; color:#aaa;">ر.ي</small></div>
+                    <div class="p-price">${p.p} <small style="font-size:0.8rem; color:var(--text-dim);">ر.ي</small></div>
                 </div>
             `).join('');
         }
@@ -681,8 +749,13 @@
             const err = "$(error)";
             if(err && err !== "$(error)") showToast(err);
 
-            const savedTheme = localStorage.getItem('timenet_theme');
-            if(savedTheme) setTheme(savedTheme);
+            // Load Preferences
+            const savedTheme = localStorage.getItem('timenet_theme') || 'gold';
+            currentThemeName = savedTheme;
+            
+            const savedMode = localStorage.getItem('timenet_mode_light') === 'true';
+            if(document.getElementById('mode-check')) document.getElementById('mode-check').checked = savedMode;
+            toggleDayMode(savedMode); // This will also applyTheme
 
             const savedCode = localStorage.getItem('timenet_saved_code');
             const saveEnabled = localStorage.getItem('timenet_save_card') === 'true';
